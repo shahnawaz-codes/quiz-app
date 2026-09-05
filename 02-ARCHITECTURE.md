@@ -1,77 +1,103 @@
-# Architecture — Online Quiz Platform
+# Architecture — Online Quiz Platform (React SPA + PHP API)
 
 ## 1. Stack
-HTML + Bootstrap + vanilla JS (frontend) → PHP (server logic, procedural or light MVC-style) → MySQL (data) → Apache/XAMPP (local host).
+- **Frontend**: React (Vite), Tailwind CSS, React Router, fetch/axios for API calls.
+- **Backend**: PHP as a pure JSON API — no HTML rendering, no PHP-side sessions used for page auth.
+- **Database**: MySQL, same 4 tables as before.
+- **Local dev**: PHP served via XAMPP/Apache (through the `htdocs` symlink), React served separately by Vite's dev server (`npm run dev`, default `localhost:5173`).
 
-No frameworks (no Laravel/Composer) — matches the "beginner college project" scope. If you later want Composer for `vlucas/phpdotenv` (see §4), that's the one exception worth making.
+This is two separate running processes during development — Apache serving the API, Vite serving the frontend — not one unified server. Don't expect `localhost/quiz-app` alone to show the React app; that URL only hits the PHP API now.
 
-## 2. Folder Structure (fixed — do not deviate mid-build)
+## 2. Folder Structure
 ```
-quiz-app/
-├── index.php
-├── login.php
-├── register.php
-├── logout.php
-├── dashboard.php
-├── quizzes.php
-├── take-quiz.php
-├── submit-quiz.php        # NEW — separate handler, see §5
-├── result.php
-├── history.php
-├── config/
-│   ├── db.php
-│   └── env.php            # NEW — loads secrets, see §4
-├── includes/
-│   ├── header.php
-│   ├── footer.php
-│   ├── auth-check.php     # NEW — session guard, see §3
-│   └── functions.php      # NEW — shared helpers (score calc, sanitize)
-├── assets/
-│   ├── css/
-│   └── js/
-├── admin/
-│   ├── login.php
-│   ├── dashboard.php
-│   ├── quizzes.php
-│   ├── add-quiz.php
-│   ├── edit-quiz.php
-│   ├── delete-quiz.php    # NEW — was missing from original list
-│   ├── questions.php
-│   ├── add-question.php
-│   ├── edit-question.php
-│   └── delete-question.php
-└── .env                    # NEW — gitignored, real DB creds
+quiz-app/                      (symlinked into htdocs)
+├── backend/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── register.php
+│   │   │   ├── login.php
+│   │   │   └── me.php          # returns current user from token
+│   │   ├── quizzes/
+│   │   │   ├── list.php
+│   │   │   ├── get.php         # ?id= single quiz + questions (no correct_answer field!)
+│   │   │   ├── create.php      # admin only
+│   │   │   ├── update.php      # admin only
+│   │   │   └── delete.php      # admin only
+│   │   ├── questions/
+│   │   │   ├── create.php
+│   │   │   ├── update.php
+│   │   │   └── delete.php
+│   │   └── results/
+│   │       ├── submit.php
+│   │       ├── history.php     # student's own attempts
+│   │       └── admin-list.php  # all results, admin only
+│   ├── config/
+│   │   ├── env.php
+│   │   └── db.php
+│   ├── includes/
+│   │   ├── jwt.php             # encode/verify, no library
+│   │   ├── auth-check.php      # reads Authorization header, verifies role
+│   │   ├── cors.php            # shared CORS headers, included first on every endpoint
+│   │   └── functions.php
+│   └── .env
+└── frontend/
+    ├── src/
+    │   ├── main.jsx
+    │   ├── App.jsx
+    │   ├── context/
+    │   │   └── AuthContext.jsx
+    │   ├── components/
+    │   │   ├── Navbar.jsx
+    │   │   ├── ProtectedRoute.jsx
+    │   │   └── LoadingSpinner.jsx
+    │   ├── pages/
+    │   │   ├── Login.jsx
+    │   │   ├── Register.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── TakeQuiz.jsx
+    │   │   ├── Result.jsx
+    │   │   ├── History.jsx
+    │   │   └── admin/
+    │   │       ├── AdminLogin.jsx
+    │   │       ├── ManageQuizzes.jsx
+    │   │       ├── ManageQuestions.jsx
+    │   │       └── StudentResults.jsx
+    │   ├── api/
+    │   │   └── client.js        # single fetch wrapper, attaches JWT header
+    │   └── index.css            # Tailwind directives
+    ├── tailwind.config.js
+    ├── vite.config.js
+    └── package.json
 ```
 
-## 3. Auth & Session Rules
-- Every protected page starts with `require_once '../includes/auth-check.php';` (or `includes/` for root-level pages). No page checks `$_SESSION` inline and independently — one shared guard, one place to fix bugs.
-- `auth-check.php` takes an optional role param: `checkAuth('admin')` vs `checkAuth('student')`. A student hitting an admin URL directly gets redirected, not just denied silently.
-- Session data stored: `$_SESSION['user_id']`, `$_SESSION['role']`, `$_SESSION['name']`. Never store password or password hash in session.
-- Regenerate session ID on login (`session_regenerate_id(true)`) to prevent session fixation.
+## 3. Auth Flow (JWT, hand-rolled)
+1. `POST /api/auth/login.php` verifies credentials with `password_verify()`, on success signs a JWT containing `user_id`, `role`, `exp` using `hash_hmac('sha256', ...)` with a secret from `.env`. Returns `{ token, user }` as JSON.
+2. React stores the token **in memory** (React state / context) — not localStorage. Storing it in localStorage is simpler but readable by any injected script; for this project's scope, memory-only means the token clears on refresh, which is an acceptable trade-off — decide if you want to add "remember me" via a refresh mechanism later, don't build it now.
+3. Every subsequent API call includes `Authorization: Bearer <token>` — `src/api/client.js` is the *only* place that attaches this, so no page manually juggles headers.
+4. `backend/includes/auth-check.php` reads the header, verifies the signature and expiry, decodes `user_id`/`role`, and is `require`'d at the top of every protected endpoint. It optionally takes a role argument (`requireAuth('admin')`).
+5. On 401 from any API call, `AuthContext` clears state and React Router redirects to `/login` — this logic lives once in the fetch wrapper, not repeated per page.
 
-## 4. Config & Secrets
-- `.env` file (gitignored) holds `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`.
-- `config/env.php` loads it (simple manual parser is fine — no Composer required if you want to stay zero-dependency).
-- `config/db.php` reads from env vars, never hardcodes credentials. This is the #1 thing that gets forgotten and then embarrassingly pushed to GitHub with a real password in it.
+## 4. CORS (this WILL bite you if skipped)
+Every PHP endpoint must `require` a shared `backend/includes/cors.php` as its very first line, before any other output, setting:
+```php
+header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization");
+```
+Also handle `OPTIONS` preflight requests by returning 200 immediately, before any auth check — browsers send these automatically and they carry no auth header, so checking auth on an OPTIONS request will break every single POST/PUT call.
 
-## 5. Quiz Submission Flow (server-authoritative)
-`take-quiz.php` renders the form → POSTs to `submit-quiz.php` (separate file, not itself — keeps GET/render logic away from POST/write logic).
+## 5. API Response Contract
+Every endpoint returns JSON in one consistent shape, always — this makes the frontend's error handling uniform instead of special-cased per page:
+```json
+{ "success": true, "data": { ... } }
+{ "success": false, "error": "Invalid credentials" }
+```
+Set `header('Content-Type: application/json')` on every endpoint. No endpoint ever echoes raw HTML or a PHP warning directly — that breaks `response.json()` on the frontend with a cryptic parse error that's hard to debug for a beginner.
 
-`submit-quiz.php` must:
-1. Verify session + that `quiz_id` in the POST belongs to a real quiz.
-2. Re-fetch correct answers from DB — **never trust any score value from the client**, even if JS calculated one for UX.
-3. Loop submitted answers, compare to DB answers, tally score server-side.
-4. Insert into `results`, redirect to `result.php?id=<result_id>` (not `?quiz_id=`, so a student can't just change the URL to see someone else's percentage math be recalculated).
-5. `result.php` must check `results.user_id == $_SESSION['user_id']` before displaying — otherwise any logged-in student can view any result by guessing IDs (IDOR).
+## 6. Quiz Submission (still server-authoritative — this doesn't change)
+`POST /api/results/submit.php` receives `{ quiz_id, answers: [{question_id, selected}] }`. The endpoint re-fetches correct answers from the DB and calculates score server-side — the frontend never sends or trusts a score value. `GET /api/quizzes/get.php` must never include `correct_answer` in its response when a student is taking the quiz — that field only appears in admin endpoints.
 
-## 6. Database Access
-- All queries use **prepared statements** (`mysqli` or PDO, pick one and use it everywhere — don't mix). PDO with `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` is the easier one to get consistent.
-- No raw string interpolation into SQL, ever, including in admin CRUD pages — those are usually where people get lazy because "only the admin uses it."
-
-## 7. Error Handling
-- `display_errors` off in a production-like state; log to a file instead. For a local XAMPP college project this is low-stakes, but do it anyway — it's the habit that matters.
-- User-facing errors are generic ("Invalid login") — never echo raw DB error messages to the browser (avoids leaking schema info, also just looks unfinished in a viva demo).
-
-## 8. What's explicitly NOT in this architecture
-- No REST API layer — pages render server-side HTML directly. Don't add an API unless a requirement actually needs one (e.g., an SPA frontend), because it doubles your surface area for no benefit here.
-- No ORM. Four tables, prepared statements, procedural functions — that's enough.
+## 7. What's explicitly NOT here
+- No SSR (Next.js) — plain Vite SPA per what you asked for.
+- No refresh-token rotation — token just expires (set `exp` to something reasonable, e.g. 2 hours) and the user logs in again.
+- No API versioning (`/api/v1/`) — unnecessary at this scope.

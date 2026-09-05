@@ -1,40 +1,47 @@
-# Design Notes — Online Quiz Platform
+# Design Notes — Online Quiz Platform (React SPA + Tailwind CSS)
 
-Kept intentionally simple — this is a Bootstrap-CRUD project, not a design showcase. The goal is "looks finished," not "looks original."
+Tailwind only, throughout — no Bootstrap classes anywhere in this project. If a class looks like `btn btn-primary` or `alert alert-danger`, it's Bootstrap and doesn't belong here; use Tailwind utilities instead.
 
-## Layout
-- Shared `header.php` / `footer.php` include a Bootstrap navbar. Navbar changes based on session: logged-out shows Login/Register, student shows Dashboard/History/Logout, admin shows Admin Dashboard/Logout. One navbar partial, conditional links — not three separate navbars.
-- Container width: Bootstrap `.container` (not `.container-fluid`) — this is a form/table-heavy app, doesn't need full width.
+## Layout & Components
+- **`Navbar.jsx`**: rendered once in `App.jsx`, reads `AuthContext` to decide which links show:
+  - Logged out: Login, Register.
+  - Student: Dashboard, History, Logout.
+  - Admin: Manage Quizzes, Student Results, Logout.
+  One component, conditional rendering inside it — not three separate navbar components.
+- **`ProtectedRoute.jsx`**: wraps routes needing auth, optional `role` prop. Redirects to `/login` if no valid token, or to a "not authorized" state if role doesn't match.
+- **`LoadingSpinner.jsx`**: one reusable spinner component (simple Tailwind `animate-spin` border div), used by every page during an API call — not rebuilt per page.
 
-## Pages
+## Page Design
 
-**Login / Register**
-- Centered card, max-width ~400px, vertically centered on the page.
-- Inline validation errors above the form, not as browser alerts.
+**Login / Register / AdminLogin**
+- Centered card (`max-w-md mx-auto mt-20 p-8 rounded-xl shadow-lg bg-white`).
+- Password field with a show/hide toggle (an eye icon button, plain `useState` boolean — no library needed).
+- Inline error banner above the form (`bg-red-50 text-red-700 border border-red-200 rounded-md p-3`), not a browser `alert()`.
 
 **Student Dashboard**
-- Bootstrap card grid (`row-cols-1 row-cols-md-3`) — one card per quiz, showing title + short description + a "Start Quiz" button.
-- Empty state: if no quizzes exist yet, show a plain message, not a blank page.
+- Welcome header with the user's name from `AuthContext`.
+- Optional summary row (available quizzes count, attempts, average score) as small stat cards — only build this if `Phase 4`'s history data already exists; don't fetch extra endpoints just for a nicer dashboard before that data is real.
+- Quiz grid: `grid grid-cols-1 md:grid-cols-3 gap-6`, each quiz as a card with title, short description, "Start Quiz" button.
+- Empty state: centered message + icon if the quiz list is empty, not a blank grid.
 
 **Take Quiz**
-- One question per card, radio buttons for the 4 options, all questions on one scrollable page (no multi-page wizard — adds complexity for no benefit at this scope).
-- Submit button fixed at the bottom, disabled until at least attempted (optional — don't over-engineer this for v1).
+- One question per card, stacked vertically, 4 options as styled radio buttons (custom-styled `input[type=radio]` with Tailwind, or a button-group pattern where the whole option row is clickable, not just the tiny circle — better UX for the actual demo).
+- Selection state tracked in local component state (`{questionId: selectedOption}`) before the single submit POST.
+- Submit button sticky at the bottom on mobile widths (`sticky bottom-0`), disabled while the request is in flight — not disabled based on "all questions answered," since partial submission is allowed unless the PRD says otherwise.
 
 **Result Page**
-- Score card: `X / Y correct`, percentage, pass/fail if you're doing that threshold — otherwise just the raw number, don't imply grading logic that doesn't exist yet.
-- Link back to dashboard and to history.
+- Score card: large `X / Y` and percentage, pass/fail badge (`bg-green-100 text-green-800` vs `bg-red-100 text-red-800`).
+- If the API returns a 403 (ownership check failed), show a plain "You don't have access to this result" state — never a broken/blank page from an unhandled fetch error.
 
-**History**
-- Bootstrap table: quiz name, date, score, percentage. Sorted newest first.
+**History / Admin Student Results**
+- Responsive table (`overflow-x-auto` wrapper + `min-w-full` table, since Tailwind has no built-in responsive table component like Bootstrap does).
+- Admin view adds a quiz filter `<select>` above the table, styled consistently with form inputs elsewhere.
 
-**Admin — Quizzes / Questions**
-- Bootstrap table with Edit/Delete action buttons per row.
-- Delete actions require a confirm step (JS `confirm()` is fine at this scope) — an accidental one-click delete on a quiz with existing results is exactly the kind of thing that looks bad in a demo.
-- Add/Edit forms: standard Bootstrap form, server-validates on submit, re-renders with errors if invalid rather than losing entered data.
-
-## Visual style
-- Default Bootstrap theme (no custom CSS framework needed) — primary color for buttons/nav, `success`/`danger` classes for pass/fail or delete actions, so color communicates state without extra explanation.
-- Consistent spacing: Bootstrap's `mb-3`/`mt-3` utility classes throughout instead of custom margins per page — keeps it from looking inconsistent page to page, which is the most common "unfinished" tell in these projects.
+## Visual System
+- Pick one accent color (e.g. `indigo-600`) used consistently for primary buttons/links — don't let different pages default to different colors.
+- Semantic colors: green for success/pass, red for error/fail/delete, amber for warnings — consistent across the whole app, not just the result page.
+- Spacing scale: stick to Tailwind's default scale (`p-4`, `gap-6`, `mt-8`, etc.) — don't hand-write arbitrary pixel values (`mt-[13px]`), it makes the UI feel inconsistent even when each individual page looks fine in isolation.
+- Font: Tailwind's default stack is fine — don't add a custom Google Font just for this project unless you specifically want the practice of wiring one in.
 
 ## What to skip
-- No custom animations, no JS framework, no dark mode toggle. None of it demonstrates the PHP/MySQL skills this project exists to show, and all of it is time spent not finishing Phase 3.
+No custom animation library, no dark mode toggle, no component library (shadcn/MUI) layered on top of Tailwind — plain Tailwind utilities are enough at this scope and keep the dependency list short, which matters when you're explaining the stack in a viva.
