@@ -1,37 +1,16 @@
 <?php
-require_once __DIR__ . '/../../includes/cors.php';
-require_once __DIR__ . '/../../config/db.php';
+require_once __DIR__ . '/../../includes/response.php';
 require_once __DIR__ . '/../../includes/auth-check.php';
-require_once __DIR__ . '/../../includes/functions.php';
+require_once __DIR__ . '/../../services/QuizService.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    sendJsonResponse(false, null, 'Method Not Allowed', 405);
-}
-
-// Protected endpoint - Admin only
-$user = requireAuth('admin');
+validateRequestMethod('POST');
+requireAuth('admin');
 
 $input = getJsonInput();
-$title       = trim($input['title'] ?? '');
-$description = trim($input['description'] ?? '');
+$res = QuizService::createQuiz($input['title'] ?? '', $input['description'] ?? '');
 
-if (empty($title)) {
-    sendJsonResponse(false, null, 'Quiz title is required.', 400);
-}
-
-$pdo = getDBConnection();
-$stmt = $pdo->prepare("INSERT INTO quizzes (title, description) VALUES (?, ?)");
-
-if ($stmt->execute([$title, $description])) {
-    $quizId = (int)$pdo->lastInsertId();
-    sendJsonResponse(true, [
-        'quiz' => [
-            'id'             => $quizId,
-            'title'          => $title,
-            'description'    => $description,
-            'question_count' => 0
-        ]
-    ]);
+if ($res['success']) {
+    sendSuccess($res['data']);
 } else {
-    sendJsonResponse(false, null, 'Failed to create quiz.', 500);
+    sendError($res['error'], $res['code'] ?? 400);
 }

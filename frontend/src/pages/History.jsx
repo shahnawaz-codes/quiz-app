@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { apiClient } from '../api/client';
+import { resultService } from '../services/resultService';
 import LoadingSpinner from '../components/LoadingSpinner';
+import PageHeader from '../components/common/PageHeader';
+import { formatDate } from '../utils/formatters';
 import { Scroll, Trophy, ChevronRight, CheckCircle2, XCircle } from 'lucide-react';
 
 const History = () => {
@@ -13,7 +15,7 @@ const History = () => {
     const fetchHistory = async () => {
       setLoading(true);
       setError('');
-      const res = await apiClient('/results/history.php');
+      const res = await resultService.getUserHistory();
 
       if (res.success && res.data) {
         setResults(res.data.results || []);
@@ -28,13 +30,12 @@ const History = () => {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      <div className="flex flex-wrap justify-between items-center gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-slate-900 font-cartoon flex items-center gap-2">
-            <Scroll className="w-7 h-7 text-sky-600" /> Adventurer Quest Log
-          </h2>
-          <p className="text-xs sm:text-sm font-bold text-slate-500">Review all your previous battle attempts and test scores</p>
-        </div>
+      <PageHeader
+        icon={Scroll}
+        title="Adventurer Quest Log"
+        subtitle="Review all your previous battle attempts and test scores"
+        badgeText="PLAYER HISTORY"
+      >
         <Link
           to="/dashboard"
           className="btn-cartoon-sky text-white px-5 py-2.5 rounded-2xl font-black text-xs sm:text-sm shadow-md flex items-center gap-2"
@@ -42,7 +43,7 @@ const History = () => {
           <Trophy className="w-4 h-4 text-white" />
           <span>New Quest</span>
         </Link>
-      </div>
+      </PageHeader>
 
       {error && (
         <div className="bg-rose-100 text-rose-900 border-3 border-slate-900 rounded-2xl p-4 text-sm font-black shadow-[0_4px_0_#0f172a]">
@@ -98,30 +99,29 @@ const History = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-black text-slate-900 font-cartoon">
                       {r.score} / {r.total_questions}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-black border-2 border-slate-900 ${
-                        r.passed ? 'bg-emerald-300 text-slate-900' : 'bg-rose-300 text-slate-900'
-                      }`}>
-                        {r.percentage}%
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-black text-slate-900 font-cartoon">
+                      {r.percentage}%
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider border-2 border-slate-900 ${
-                        r.passed ? 'bg-emerald-100 text-emerald-900' : 'bg-rose-100 text-rose-900'
-                      }`}>
-                        {r.passed ? <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> : <XCircle className="w-3.5 h-3.5 text-rose-700" />}
-                        {r.passed ? 'CLEARED' : 'FAILED'}
-                      </span>
+                      {r.passed ? (
+                        <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 border-2 border-slate-900 px-3 py-1 rounded-full text-xs font-black font-cartoon shadow-[0_2px_0_#0f172a]">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> VICTORY
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-900 border-2 border-slate-900 px-3 py-1 rounded-full text-xs font-black font-cartoon shadow-[0_2px_0_#0f172a]">
+                          <XCircle className="w-3.5 h-3.5 text-rose-600" /> DEFEAT
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-xs text-slate-500 font-bold">
-                      {new Date(r.completed_at).toLocaleString()}
+                      {formatDate(r.completed_at)}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs">
                       <Link
                         to={`/result/${r.id}`}
-                        className="inline-flex items-center gap-1 px-3.5 py-1.5 bg-sky-100 hover:bg-sky-200 text-slate-900 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[0_2px_0_#0f172a] transition font-cartoon"
+                        className="inline-flex items-center gap-1 bg-sky-100 hover:bg-sky-200 text-sky-900 border-2 border-slate-900 px-3 py-1 rounded-xl font-black font-cartoon transition shadow-[0_2px_0_#0f172a]"
                       >
-                        <span>Breakdown</span>
+                        <span>Card</span>
                         <ChevronRight className="w-3.5 h-3.5" />
                       </Link>
                     </td>
@@ -137,5 +137,3 @@ const History = () => {
 };
 
 export default History;
-
-

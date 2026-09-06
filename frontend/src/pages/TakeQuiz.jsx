@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { apiClient } from '../api/client';
+import { quizService } from '../services/quizService';
+import { resultService } from '../services/resultService';
 import LoadingSpinner from '../components/LoadingSpinner';
+import PageHeader from '../components/common/PageHeader';
 import { Swords, Flame, ArrowLeft, CheckCircle2, ShieldAlert, Sparkles, Send } from 'lucide-react';
 
 const TakeQuiz = () => {
@@ -18,7 +20,7 @@ const TakeQuiz = () => {
     const fetchQuiz = async () => {
       setLoading(true);
       setError('');
-      const res = await apiClient(`/quizzes/get.php?id=${quizId}`);
+      const res = await quizService.getQuizById(quizId);
 
       if (res.success && res.data && res.data.quiz) {
         setQuiz(res.data.quiz);
@@ -45,20 +47,14 @@ const TakeQuiz = () => {
     setSubmitting(true);
     setError('');
 
-    const res = await apiClient('/results/submit.php', {
-      method: 'POST',
-      body: JSON.stringify({
-        quiz_id: parseInt(quizId, 10),
-        answers: answers
-      })
-    });
+    const res = await resultService.submitQuiz(parseInt(quizId, 10), answers);
 
     setSubmitting(false);
 
     if (res.success && res.data && res.data.result_id) {
       navigate(`/result/${res.data.result_id}`);
     } else {
-      setError(res.error || 'Failed to submit quiz attempt.');
+      setError(res.error || 'Failed to submit quiz answers.');
     }
   };
 
@@ -66,141 +62,106 @@ const TakeQuiz = () => {
 
   if (error || !quiz) {
     return (
-      <div className="max-w-xl mx-auto my-12 bg-white border-4 border-slate-900 rounded-3xl p-8 text-center shadow-[0_8px_0_#0f172a] space-y-4">
-        <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-3xl border-3 border-slate-900 flex items-center justify-center mx-auto text-3xl shadow-sm">
-          <ShieldAlert className="w-8 h-8" />
+      <div className="max-w-2xl mx-auto space-y-6 text-center py-12">
+        <div className="bg-rose-100 border-4 border-slate-900 rounded-3xl p-8 shadow-[0_8px_0_#0f172a] space-y-4">
+          <ShieldAlert className="w-16 h-16 text-rose-600 mx-auto" />
+          <h2 className="text-2xl font-black text-slate-900 font-cartoon">Quest Unavailable</h2>
+          <p className="text-slate-600 font-bold text-xs sm:text-sm">{error || 'Quest details could not be found.'}</p>
+          <Link
+            to="/dashboard"
+            className="btn-cartoon-yellow inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs font-black"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Quest Arena
+          </Link>
         </div>
-        <h2 className="text-2xl font-black text-slate-900 font-cartoon">Quest Unavailable</h2>
-        <p className="text-xs font-bold text-slate-600">{error || 'This battle stage could not be located.'}</p>
-        <Link
-          to="/dashboard"
-          className="btn-cartoon-sky inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs uppercase tracking-wider"
-        >
-          <ArrowLeft className="w-4 h-4" /> Return to Dashboard
-        </Link>
       </div>
     );
   }
 
-  const totalQuestions = quiz.questions.length;
+  const questions = quiz.questions || [];
   const answeredCount = Object.keys(answers).length;
-  const progressPercent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
-  const comboMultiplier = answeredCount > 2 ? 'x2.0' : answeredCount > 0 ? 'x1.5' : 'x1.0';
+  const progressPercent = questions.length > 0 ? Math.round((answeredCount / questions.length) * 100) : 0;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 pb-24 relative">
-      {/* Cartoon Quest Header */}
-      <div className="bg-sky-600 rounded-3xl border-4 border-slate-900 p-6 sm:p-8 shadow-[0_8px_0_#0f172a] text-white space-y-5">
-        <div className="flex flex-wrap justify-between items-center gap-3">
-          <Link to="/dashboard" className="text-xs font-black bg-white text-slate-900 px-3.5 py-1.5 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] hover:bg-sky-100 flex items-center gap-1.5 transition font-cartoon">
-            <ArrowLeft className="w-4 h-4" /> Retreat
-          </Link>
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-black bg-amber-400 text-slate-900 px-3.5 py-1 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] flex items-center gap-1 font-cartoon">
-              <Flame className="w-3.5 h-3.5 text-slate-900" /> Combo {comboMultiplier}
-            </span>
-            <span className="text-xs font-black bg-emerald-400 text-slate-900 px-3 py-1 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] font-cartoon">
-              {answeredCount} / {totalQuestions} Answered
-            </span>
-          </div>
-        </div>
+    <div className="max-w-3xl mx-auto space-y-8 pb-12">
+      <PageHeader
+        icon={Swords}
+        title={quiz.title}
+        subtitle={quiz.description || 'Answer all questions below and submit to calculate your score'}
+        badgeText={`BATTLE ARENA #${quiz.id}`}
+      >
+        <Link
+          to="/dashboard"
+          className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border-2 border-slate-900 rounded-2xl text-xs font-black text-slate-800 flex items-center justify-center gap-1.5 font-cartoon"
+        >
+          <ArrowLeft className="w-4 h-4" /> Exit
+        </Link>
+      </PageHeader>
 
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="px-3 py-0.5 rounded-full bg-amber-300 text-slate-900 border-2 border-slate-900 font-black text-[10px] uppercase tracking-wider font-cartoon">
-              Stage #{quiz.id}
-            </span>
-            <span className="text-xs font-black text-amber-200 flex items-center gap-1 font-cartoon">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Earn EXP Points
-            </span>
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white font-cartoon leading-tight drop-shadow-[0_2px_0_#0f172a]">
-            {quiz.title}
-          </h1>
-          {quiz.description && (
-            <p className="text-xs sm:text-sm text-sky-100 mt-1 font-bold">{quiz.description}</p>
-          )}
+      {/* Battle Progress Indicator */}
+      <div className="bg-white rounded-3xl p-4 sm:p-6 border-4 border-slate-900 shadow-[0_6px_0_#0f172a] space-y-2">
+        <div className="flex justify-between items-center text-xs font-black font-cartoon">
+          <span className="flex items-center gap-1 text-slate-900">
+            <Flame className="w-4 h-4 text-amber-500" /> QUEST PROGRESS
+          </span>
+          <span className="text-sky-600">{answeredCount} of {questions.length} Answered ({progressPercent}%)</span>
         </div>
-
-        {/* Quest Progress Tracker */}
-        <div className="space-y-1.5 pt-2">
-          <div className="flex justify-between text-xs font-black text-white font-cartoon">
-            <span>STAGE PROGRESS</span>
-            <span>{progressPercent}% COMPLETE</span>
-          </div>
-          <div className="w-full bg-sky-900 rounded-full h-4 p-0.5 overflow-hidden border-2 border-slate-900">
-            <div
-              className="bg-amber-400 h-full rounded-full transition-all duration-300 border border-slate-900 shadow-sm"
-              style={{ width: `${progressPercent}%` }}
-            ></div>
-          </div>
+        <div className="w-full h-4 bg-slate-100 rounded-full border-2 border-slate-900 overflow-hidden">
+          <div
+            className="h-full bg-sky-500 border-r-2 border-slate-900 transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
         </div>
       </div>
 
-      {error && (
-        <div className="bg-rose-100 text-rose-900 border-3 border-slate-900 rounded-2xl p-4 text-sm font-black shadow-[0_4px_0_#0f172a] flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-rose-600" /> {error}
-        </div>
-      )}
-
-      {/* Questions List */}
+      {/* Questions Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {quiz.questions.map((q, idx) => {
-          const isAnswered = !!answers[q.id];
-
+        {questions.map((q, idx) => {
+          const selectedChoice = answers[q.id];
           return (
             <div
               key={q.id}
-              className={`bg-white rounded-3xl border-3 border-slate-900 transition-all duration-200 p-6 sm:p-8 shadow-[0_6px_0_#0f172a] space-y-6 ${
-                isAnswered ? 'bg-sky-50/60 ring-2 ring-sky-400' : ''
-              }`}
+              className="bg-white rounded-3xl p-6 border-4 border-slate-900 shadow-[0_8px_0_#0f172a] space-y-4"
             >
-              <div className="flex gap-3.5 items-start">
-                <span className="bg-amber-400 text-slate-900 border-2 border-slate-900 font-black text-xs px-3 py-1.5 rounded-2xl shadow-[0_2px_0_#0f172a] mt-0.5 font-cartoon">
-                  STAGE {idx + 1}
+              <div className="flex items-start gap-3">
+                <span className="w-8 h-8 rounded-2xl bg-amber-400 border-2 border-slate-900 text-slate-900 font-black text-xs flex items-center justify-center font-cartoon shrink-0 shadow-[0_2px_0_#0f172a]">
+                  {idx + 1}
                 </span>
-                <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-snug font-cartoon">
+                <h3 className="text-lg font-black text-slate-900 font-cartoon pt-0.5">
                   {q.question_text}
                 </h3>
               </div>
 
-              {/* Cartoon Option Buttons (A), (B), (C), (D) */}
-              <div className="grid grid-cols-1 gap-3 pt-2">
-                {['a', 'b', 'c', 'd'].map((optKey) => {
-                  const optText = q[`option_${optKey}`];
-                  const isSelected = answers[q.id] === optKey;
-
+              {/* Choices Options */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                {[
+                  { key: 'a', val: q.option_a, label: 'A' },
+                  { key: 'b', val: q.option_b, label: 'B' },
+                  { key: 'c', val: q.option_c, label: 'C' },
+                  { key: 'd', val: q.option_d, label: 'D' }
+                ].map((opt) => {
+                  const isSelected = selectedChoice === opt.key;
                   return (
-                    <label
-                      key={optKey}
-                      onClick={() => handleOptionSelect(q.id, optKey)}
-                      className={`flex items-center justify-between p-4 rounded-2xl border-3 border-slate-900 cursor-pointer transition-all duration-150 transform hover:scale-[1.01] ${
+                    <button
+                      key={opt.key}
+                      type="button"
+                      onClick={() => handleOptionSelect(q.id, opt.key)}
+                      className={`p-4 rounded-2xl border-3 border-slate-900 text-left transition-all duration-150 flex items-center justify-between font-bold text-xs ${
                         isSelected
-                          ? 'bg-amber-300 text-slate-900 shadow-[0_4px_0_#0f172a] font-black scale-[1.01]'
-                          : 'bg-white hover:bg-sky-50 text-slate-900 shadow-[0_3px_0_#0f172a] font-bold'
+                          ? 'bg-amber-300 text-slate-900 shadow-[0_4px_0_#0f172a] scale-[1.02] ring-2 ring-amber-400'
+                          : 'bg-slate-50 hover:bg-sky-100 text-slate-800 shadow-[0_2px_0_#0f172a]'
                       }`}
                     >
-                      <div className="flex items-center gap-3.5">
-                        <span
-                          className={`w-8 h-8 rounded-xl border-2 border-slate-900 font-black text-xs flex items-center justify-center font-cartoon transition-all ${
-                            isSelected
-                              ? 'bg-slate-900 text-white shadow-sm'
-                              : 'bg-sky-100 text-slate-900'
-                          }`}
-                        >
-                          {optKey.toUpperCase()}
+                      <div className="flex items-center gap-3">
+                        <span className={`w-7 h-7 rounded-xl border-2 border-slate-900 flex items-center justify-center font-black text-xs font-cartoon ${
+                          isSelected ? 'bg-slate-900 text-white' : 'bg-white text-slate-900'
+                        }`}>
+                          {opt.label}
                         </span>
-                        <span className="text-sm">{optText}</span>
+                        <span>{opt.val}</span>
                       </div>
-
-                      <div className="w-6 h-6 rounded-full border-2 border-slate-900 flex items-center justify-center bg-white">
-                        {isSelected ? (
-                          <div className="w-3.5 h-3.5 bg-slate-900 rounded-full"></div>
-                        ) : (
-                          <div className="w-3 h-3 rounded-full border-slate-300"></div>
-                        )}
-                      </div>
-                    </label>
+                      {isSelected && <CheckCircle2 className="w-5 h-5 text-slate-900 stroke-[2.5]" />}
+                    </button>
                   );
                 })}
               </div>
@@ -208,20 +169,14 @@ const TakeQuiz = () => {
           );
         })}
 
-        {/* Sticky Submit Bar at Bottom */}
-        <div className="sticky bottom-4 z-40 bg-white p-4 sm:p-5 rounded-3xl border-4 border-slate-900 shadow-[0_8px_0_#0f172a] flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div className="text-xs font-black text-slate-900 text-center sm:text-left font-cartoon">
-            <span>{totalQuestions - answeredCount} Question(s) Remaining</span>
-            <p className="text-[11px] text-slate-500 font-bold">Submit to calculate score and rank XP</p>
-          </div>
-
+        <div className="pt-4">
           <button
             type="submit"
             disabled={submitting}
-            className="btn-cartoon-yellow w-full sm:w-auto px-8 py-3.5 text-slate-900 text-sm shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-wider"
+            className="btn-cartoon-sky w-full py-4 px-6 rounded-3xl text-base font-black uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_6px_0_#0f172a]"
           >
-            <Send className="w-4 h-4 text-slate-900" />
-            <span>{submitting ? 'Calculating Score...' : 'Submit Battle Attempt ✓'}</span>
+            <Send className="w-5 h-5" />
+            <span>{submitting ? 'Calculating Battle Score...' : 'Submit Battle Quest ⚡'}</span>
           </button>
         </div>
       </form>
@@ -230,5 +185,3 @@ const TakeQuiz = () => {
 };
 
 export default TakeQuiz;
-
-

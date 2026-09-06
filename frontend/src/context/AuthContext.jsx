@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { apiClient, setAuthToken, setOnUnauthorized } from '../api/client';
+import { setAuthToken, setOnUnauthorized } from '../api/client';
+import { authService } from '../services/authService';
 
 const AuthContext = createContext(null);
 
@@ -56,14 +57,13 @@ export const AuthProvider = ({ children }) => {
 
       if (savedToken) {
         setAuthToken(savedToken);
-        const res = await apiClient('/auth/me.php');
+        const res = await authService.getMe();
         if (res.success && res.data && res.data.user) {
           setUser(res.data.user);
           if (typeof window !== 'undefined') {
             localStorage.setItem('quiz_app_user', JSON.stringify(res.data.user));
           }
         } else {
-          // Token is invalid or expired
           clearAuth();
         }
       } else {
@@ -77,10 +77,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     setLoading(true);
-    const res = await apiClient('/auth/login.php', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    });
+    const res = await authService.login(email, password);
 
     if (res.success && res.data && res.data.token) {
       setAuthToken(res.data.token);
@@ -99,15 +96,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (name, email, password, confirmPassword) => {
     setLoading(true);
-    const res = await apiClient('/auth/register.php', {
-      method: 'POST',
-      body: JSON.stringify({
-        name,
-        email,
-        password,
-        confirm_password: confirmPassword
-      })
-    });
+    const res = await authService.register(name, email, password, confirmPassword);
     setLoading(false);
     return res;
   };
