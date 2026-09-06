@@ -3,36 +3,61 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { apiClient } from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { AVATARS } from '../components/AvatarSelector';
 import { Trophy, Flame, Zap, Award, Sparkles, BookOpen, Star, ChevronRight, Play, Compass } from 'lucide-react';
-
-const TOP_PLAYERS = [
-  { rank: 1, name: 'Samuel', points: 2331, avatar: '👹', badge: '👑', color: 'bg-amber-300', border: 'border-slate-900' },
-  { rank: 2, name: 'Christine', points: 1562, avatar: '🐨', badge: '🥈', color: 'bg-sky-300', border: 'border-slate-900' },
-  { rank: 3, name: 'Nabilaw', points: 992, avatar: '☁️', badge: '🥉', color: 'bg-rose-300', border: 'border-slate-900' },
-];
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [quizzes, setQuizzes] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [userHistory, setUserHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
+  // Avatar state
+  const avatarId = localStorage.getItem('quiz_app_avatar') || 'yeti';
+  const userAvatar = AVATARS.find(a => a.id === avatarId) || AVATARS[0];
+
   useEffect(() => {
-    const fetchQuizzes = async () => {
+    const fetchData = async () => {
       setLoading(true);
       setError('');
-      const res = await apiClient('/quizzes/list.php');
-      if (res.success && res.data) {
-        setQuizzes(res.data.quizzes || []);
+      
+      const [quizRes, leaderRes, historyRes] = await Promise.all([
+        apiClient('/quizzes/list.php'),
+        apiClient('/results/leaderboard.php'),
+        apiClient('/results/history.php')
+      ]);
+
+      if (quizRes.success && quizRes.data) {
+        setQuizzes(quizRes.data.quizzes || []);
       } else {
-        setError(res.error || 'Failed to fetch quizzes.');
+        setError(quizRes.error || 'Failed to fetch quizzes.');
       }
+
+      if (leaderRes.success && leaderRes.data) {
+        setLeaderboard(leaderRes.data.leaderboard || []);
+      }
+
+      if (historyRes.success && historyRes.data) {
+        setUserHistory(historyRes.data.results || []);
+      }
+
       setLoading(false);
     };
 
-    fetchQuizzes();
+    fetchData();
   }, []);
+
+  // Real stats calculation
+  const totalUserExp = userHistory.reduce((sum, h) => sum + h.score * 100, 0);
+  const userLevel = Math.max(1, Math.floor(totalUserExp / 500) + 1);
+
+  // Leaderboard Top 3 players
+  const top1 = leaderboard[0] || { name: user?.name || 'Grand Champion', points: totalUserExp || 500, avatar: '👑' };
+  const top2 = leaderboard[1] || { name: 'Knight Hero', points: 300, avatar: '⚔️' };
+  const top3 = leaderboard[2] || { name: 'Rookie Mage', points: 150, avatar: '🧙‍♂️' };
 
   return (
     <div className="space-y-8 pb-12">
@@ -42,21 +67,21 @@ const Dashboard = () => {
           <div className="flex items-center gap-4">
             {/* Player Avatar Box */}
             <div className="relative">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-amber-400 border-3 border-slate-900 text-3xl sm:text-4xl flex items-center justify-center shadow-[0_4px_0_#0f172a] transform hover:rotate-6 transition duration-300">
-                👹
+              <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-3xl ${userAvatar.bg} border-3 border-slate-900 text-3xl sm:text-4xl flex items-center justify-center shadow-[0_4px_0_#0f172a] transform hover:rotate-6 transition duration-300`}>
+                {userAvatar.emoji}
               </div>
               <span className="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-slate-900 shadow font-cartoon">
-                LVL 12
+                LVL {userLevel}
               </span>
             </div>
 
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <span className="inline-flex items-center gap-1 px-3 py-0.5 bg-amber-400 text-slate-900 border-2 border-slate-900 rounded-full text-xs font-black uppercase shadow-[0_2px_0_#0f172a] font-cartoon">
-                  <Sparkles className="w-3 h-3 text-slate-900" /> S-Rank Adventurer
+                  <Sparkles className="w-3 h-3 text-slate-900" /> Rank #{leaderboard.findIndex(l => l.name === user?.name) + 1 || 1} Adventurer
                 </span>
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-orange-400 text-slate-900 border-2 border-slate-900 rounded-full text-xs font-black shadow-[0_2px_0_#0f172a] font-cartoon">
-                  <Flame className="w-3 h-3 text-slate-900" /> 5 Day Streak
+                  <Flame className="w-3 h-3 text-slate-900" /> {userHistory.length} Quests Cleared
                 </span>
               </div>
               <h1 className="text-2xl sm:text-4xl font-black tracking-tight font-cartoon text-white drop-shadow-[0_3px_0_#0f172a]">
@@ -71,7 +96,7 @@ const Dashboard = () => {
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <div className="bg-amber-300 text-slate-900 border-3 border-slate-900 px-4 py-2.5 rounded-2xl text-center flex-1 md:flex-initial shadow-[0_4px_0_#0f172a]">
               <span className="text-[10px] font-black uppercase tracking-wider block font-cartoon">TOTAL XP SCORE</span>
-              <span className="text-xl font-black font-cartoon">4,235 PTS</span>
+              <span className="text-xl font-black font-cartoon">{totalUserExp} PTS</span>
             </div>
             <Link
               to="/history"
@@ -84,17 +109,17 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Leaderboard Top 3 Podium Card (Refined Cartoon 3D Style!) */}
+      {/* Leaderboard Top 3 Podium Card (Live Dynamic Leaderboard!) */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border-4 border-slate-900 shadow-[0_8px_0_#0f172a] space-y-6">
         <div className="flex flex-wrap justify-between items-center gap-2">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 font-cartoon flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-amber-500" /> Leaderboard Champions
+              <Trophy className="w-6 h-6 text-amber-500" /> Live Leaderboard Champions
             </h2>
-            <p className="text-xs font-bold text-slate-500">Top scoring quiz masters this season</p>
+            <p className="text-xs font-bold text-slate-500">Top scoring quiz masters in the database</p>
           </div>
           <span className="text-xs font-black text-slate-900 bg-amber-300 px-3 py-1 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] font-cartoon">
-            Season 4 Arena
+            LIVE ARENA RANKINGS
           </span>
         </div>
 
@@ -104,14 +129,14 @@ const Dashboard = () => {
           <div className="flex flex-col items-center p-3 sm:p-4 rounded-3xl bg-sky-100 border-3 border-slate-900 shadow-[0_5px_0_#0f172a] text-center transform hover:-translate-y-1 transition duration-200">
             <div className="relative mb-2">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-sky-400 border-3 border-slate-900 text-2xl sm:text-3xl flex items-center justify-center shadow-md">
-                {TOP_PLAYERS[1].avatar}
+                {top2.avatar}
               </div>
               <span className="absolute -bottom-1 -right-1 bg-sky-600 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900 shadow font-cartoon">
                 2
               </span>
             </div>
-            <span className="font-black text-xs sm:text-sm text-slate-900 truncate max-w-full font-cartoon">{TOP_PLAYERS[1].name}</span>
-            <span className="text-[11px] font-black text-sky-800 font-cartoon bg-white px-2 py-0.5 rounded-full mt-1 border border-slate-900">{TOP_PLAYERS[1].points} pts</span>
+            <span className="font-black text-xs sm:text-sm text-slate-900 truncate max-w-full font-cartoon">{top2.name}</span>
+            <span className="text-[11px] font-black text-sky-800 font-cartoon bg-white px-2 py-0.5 rounded-full mt-1 border border-slate-900">{top2.points} pts</span>
           </div>
 
           {/* 1st Place (Center Gold Podium) */}
@@ -119,15 +144,15 @@ const Dashboard = () => {
             <span className="text-2xl mb-1 animate-bounce-subtle">👑</span>
             <div className="relative mb-2">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-400 border-4 border-slate-900 text-3xl sm:text-4xl flex items-center justify-center shadow-md">
-                {TOP_PLAYERS[0].avatar}
+                {top1.avatar}
               </div>
               <span className="absolute -bottom-1 -right-1 bg-amber-500 text-slate-900 font-black text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-slate-900 shadow font-cartoon">
                 1
               </span>
             </div>
-            <span className="font-black text-sm sm:text-base text-slate-900 truncate max-w-full font-cartoon">{TOP_PLAYERS[0].name}</span>
+            <span className="font-black text-sm sm:text-base text-slate-900 truncate max-w-full font-cartoon">{top1.name}</span>
             <span className="text-xs font-black text-slate-900 font-cartoon bg-white px-3 py-0.5 rounded-full mt-1 border-2 border-slate-900 shadow-[0_2px_0_#0f172a]">
-              {TOP_PLAYERS[0].points} pts
+              {top1.points} pts
             </span>
           </div>
 
@@ -135,14 +160,14 @@ const Dashboard = () => {
           <div className="flex flex-col items-center p-3 sm:p-4 rounded-3xl bg-rose-100 border-3 border-slate-900 shadow-[0_5px_0_#0f172a] text-center transform hover:-translate-y-1 transition duration-200">
             <div className="relative mb-2">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-rose-400 border-3 border-slate-900 text-2xl sm:text-3xl flex items-center justify-center shadow-md">
-                {TOP_PLAYERS[2].avatar}
+                {top3.avatar}
               </div>
               <span className="absolute -bottom-1 -right-1 bg-rose-500 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-slate-900 shadow font-cartoon">
                 3
               </span>
             </div>
-            <span className="font-black text-xs sm:text-sm text-slate-900 truncate max-w-full font-cartoon">{TOP_PLAYERS[2].name}</span>
-            <span className="text-[11px] font-black text-rose-800 font-cartoon bg-white px-2 py-0.5 rounded-full mt-1 border border-slate-900">{TOP_PLAYERS[2].points} pts</span>
+            <span className="font-black text-xs sm:text-sm text-slate-900 truncate max-w-full font-cartoon">{top3.name}</span>
+            <span className="text-[11px] font-black text-rose-800 font-cartoon bg-white px-2 py-0.5 rounded-full mt-1 border border-slate-900">{top3.points} pts</span>
           </div>
         </div>
       </div>

@@ -1,20 +1,34 @@
 const API_BASE_URL = 'http://localhost/quiz-app/backend/api';
 
-let inMemoryToken = typeof window !== 'undefined' ? sessionStorage.getItem('quiz_app_token') : null;
+const TOKEN_KEY = 'quiz_app_token';
+const USER_KEY = 'quiz_app_user';
+
+let inMemoryToken = typeof window !== 'undefined'
+  ? (localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY))
+  : null;
 let onUnauthorizedCallback = () => {};
 
 export const setAuthToken = (token) => {
   inMemoryToken = token;
   if (typeof window !== 'undefined') {
     if (token) {
-      sessionStorage.setItem('quiz_app_token', token);
+      localStorage.setItem(TOKEN_KEY, token);
+      sessionStorage.setItem(TOKEN_KEY, token);
     } else {
-      sessionStorage.removeItem('quiz_app_token');
+      localStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      sessionStorage.removeItem(USER_KEY);
     }
   }
 };
 
-export const getAuthToken = () => inMemoryToken;
+export const getAuthToken = () => {
+  if (!inMemoryToken && typeof window !== 'undefined') {
+    inMemoryToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+  }
+  return inMemoryToken;
+};
 
 export const setOnUnauthorized = (fn) => {
   onUnauthorizedCallback = fn;

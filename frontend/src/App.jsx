@@ -11,6 +11,7 @@ import Dashboard from './pages/Dashboard';
 import TakeQuiz from './pages/TakeQuiz';
 import Result from './pages/Result';
 import History from './pages/History';
+import Profile from './pages/Profile';
 import NotFound from './pages/NotFound';
 
 import AdminLogin from './pages/admin/AdminLogin';
@@ -38,6 +39,14 @@ function AppContent() {
               element={
                 <ProtectedRoute requiredRole="student">
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />

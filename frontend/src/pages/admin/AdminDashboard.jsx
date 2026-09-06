@@ -13,6 +13,21 @@ const AdminDashboard = () => {
     passRate: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+  const [seedMsg, setSeedMsg] = useState('');
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    setSeedMsg('');
+    const res = await apiClient('/quizzes/seed.php', { method: 'POST' });
+    setSeeding(false);
+    if (res.success) {
+      setSeedMsg(res.data?.message || 'Sample cartoon quizzes loaded!');
+      window.location.reload();
+    } else {
+      setSeedMsg('⚠️ Seeding error: ' + (res.error || 'Failed'));
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -49,8 +64,8 @@ const AdminDashboard = () => {
   return (
     <div className="space-y-8 pb-12">
       {/* Header Banner */}
-      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border-4 border-slate-900 shadow-[0_10px_0_#0f172a] relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl space-y-3">
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border-4 border-slate-900 shadow-[0_10px_0_#0f172a] relative overflow-hidden flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="relative z-10 max-w-xl space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400 text-slate-900 border-2 border-slate-900 text-xs font-black uppercase tracking-wider font-cartoon shadow-[0_2px_0_#0f172a]">
             <ShieldCheck className="w-4 h-4 text-slate-900" /> Guild Master Console
           </div>
@@ -58,9 +73,22 @@ const AdminDashboard = () => {
             Welcome back, Master <span className="text-amber-300">{user?.name || 'Administrator'}</span>!
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed">
-            Manage active quiz stages, oversee student battle submissions, monitor performance statistics, and configure assessment modules.
+            Manage active quiz stages, oversee student battle submissions, monitor performance statistics, and populate quests!
           </p>
+          {seedMsg && (
+            <div className="text-xs font-black text-amber-300 bg-slate-800 p-2.5 rounded-xl border border-amber-400">
+              {seedMsg}
+            </div>
+          )}
         </div>
+
+        <button
+          onClick={handleSeed}
+          disabled={seeding}
+          className="bg-amber-400 hover:bg-amber-300 active:translate-y-1 text-slate-900 font-black px-5 py-3.5 rounded-2xl border-2 border-white shadow-[0_4px_0_#000] text-sm whitespace-nowrap disabled:opacity-50 font-cartoon"
+        >
+          {seeding ? '⚡ SEEDING...' : '⚡ AUTO-SEED 6 QUIZZES & QUESTIONS'}
+        </button>
       </div>
 
       {/* Quick Stats Grid */}

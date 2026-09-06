@@ -61,8 +61,9 @@ const Register = () => {
         <AvatarSelector selectedAvatarId={selectedAvatar} onSelect={setSelectedAvatar} />
 
         <div>
-          <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5 font-cartoon">
-            Adventurer Alias (Full Name)
+          <label htmlFor="name" className="block text-xs font-black uppercase tracking-wider text-slate-900 mb-1.5 font-cartoon flex justify-between">
+            <span>Unique Adventurer Alias / Gamer Tag 🎮</span>
+            <span className="text-[10px] text-amber-600 font-bold">Must be Unique</span>
           </label>
           <div className="relative">
             <User className="w-4 h-4 text-sky-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -72,10 +73,13 @@ const Register = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-2xl border-2 border-slate-900 focus:ring-2 focus:ring-sky-500 transition text-sm font-bold text-slate-900 bg-sky-50"
-              placeholder="Jane Adventurer"
+              placeholder="e.g. ShadowKnight99"
               required
             />
           </div>
+          <p className="text-[11px] font-bold text-slate-500 mt-1">
+            This name will be your unique gamer tag on the Live Leaderboard.
+          </p>
         </div>
 
         <div>

@@ -15,6 +15,21 @@ const ManageQuizzes = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    setError('');
+    setSuccess('');
+    const res = await apiClient('/quizzes/seed.php', { method: 'POST' });
+    setSeeding(false);
+    if (res.success) {
+      setSuccess(res.data?.message || 'Sample cartoon quizzes and questions successfully loaded!');
+      fetchQuizzes();
+    } else {
+      setError(res.error || 'Failed to seed sample quizzes.');
+    }
+  };
 
   const fetchQuizzes = async () => {
     setLoading(true);
@@ -114,12 +129,22 @@ const ManageQuizzes = () => {
           </h2>
           <p className="text-sm font-bold text-slate-500">Create, edit, and manage all quiz modules</p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="bg-emerald-500 hover:bg-emerald-400 active:translate-y-1 text-slate-900 px-5 py-3 rounded-2xl font-black shadow-[0_4px_0_#0f172a] border-2 border-slate-900 transition-all text-sm flex items-center gap-2"
-        >
-          ➕ FORGE NEW QUEST
-        </button>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleSeed}
+            disabled={seeding}
+            className="bg-amber-400 hover:bg-amber-300 active:translate-y-1 text-slate-900 px-5 py-3 rounded-2xl font-black shadow-[0_4px_0_#0f172a] border-2 border-slate-900 transition-all text-sm flex items-center gap-2 disabled:opacity-50"
+            title="Automatically populate 6 full quizzes with 30 questions into database"
+          >
+            {seeding ? '⚡ SEEDING DATABASE...' : '⚡ AUTO-SEED 6 REAL QUIZZES'}
+          </button>
+          <button
+            onClick={openCreateModal}
+            className="bg-emerald-500 hover:bg-emerald-400 active:translate-y-1 text-slate-900 px-5 py-3 rounded-2xl font-black shadow-[0_4px_0_#0f172a] border-2 border-slate-900 transition-all text-sm flex items-center gap-2"
+          >
+            ➕ FORGE NEW QUEST
+          </button>
+        </div>
       </div>
 
       {success && (
