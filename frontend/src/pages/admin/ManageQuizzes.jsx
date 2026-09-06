@@ -77,7 +77,7 @@ const ManageQuizzes = () => {
     setSubmitting(false);
 
     if (res.success) {
-      setSuccess(editingQuiz ? 'Quiz updated successfully!' : 'Quiz created successfully!');
+      setSuccess(editingQuiz ? 'Quest updated successfully!' : 'New quest created successfully!');
       closeModal();
       fetchQuizzes();
     } else {
@@ -98,7 +98,7 @@ const ManageQuizzes = () => {
     });
 
     if (res.success) {
-      setSuccess('Quiz deleted successfully.');
+      setSuccess('Quest deleted successfully.');
       fetchQuizzes();
     } else {
       setError(res.error || 'Failed to delete quiz.');
@@ -107,64 +107,69 @@ const ManageQuizzes = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap justify-between items-center gap-4">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-white p-6 rounded-3xl border-4 border-slate-900 shadow-[0_6px_0_#0f172a]">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Quiz Management</h2>
-          <p className="text-sm text-slate-500">Create, edit, and manage all quiz modules</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            🗺️ QUEST MANAGEMENT
+          </h2>
+          <p className="text-sm font-bold text-slate-500">Create, edit, and manage all quiz modules</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-semibold shadow transition text-sm flex items-center gap-2"
+          className="bg-emerald-500 hover:bg-emerald-400 active:translate-y-1 text-slate-900 px-5 py-3 rounded-2xl font-black shadow-[0_4px_0_#0f172a] border-2 border-slate-900 transition-all text-sm flex items-center gap-2"
         >
-          + Create New Quiz
+          ➕ FORGE NEW QUEST
         </button>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg p-3 text-sm">
-          {success}
+        <div className="bg-emerald-100 text-emerald-900 border-2 border-emerald-500 rounded-2xl p-4 text-sm font-bold shadow-[0_4px_0_#10b981]">
+          ✨ {success}
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
-          {error}
+        <div className="bg-coral-100 text-coral-800 border-2 border-coral-500 rounded-2xl p-4 text-sm font-bold shadow-[0_4px_0_#ef4444]">
+          ⚠️ {error}
         </div>
       )}
 
       {/* Modal / Create & Edit Drawer */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 border border-slate-100 space-y-4">
-            <h3 className="text-xl font-bold text-slate-900">
-              {editingQuiz ? 'Edit Quiz' : 'Create New Quiz'}
-            </h3>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl shadow-[0_12px_0_#0f172a] max-w-lg w-full p-6 border-4 border-slate-900 space-y-4">
+            <div className="flex justify-between items-center border-b-2 border-slate-200 pb-3">
+              <h3 className="text-2xl font-black text-slate-900">
+                {editingQuiz ? '✏️ EDIT QUEST' : '⚔️ CREATE NEW QUEST'}
+              </h3>
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-900 text-xl font-bold">✖</button>
+            </div>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
-                  Quiz Title <span className="text-red-500">*</span>
+                <label className="block text-xs font-black uppercase text-slate-700 tracking-wider mb-1">
+                  Quest Title <span className="text-coral-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                  placeholder="e.g. PHP & Web Development Basics"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-900 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-sky-200 shadow-[0_4px_0_#0f172a]"
+                  placeholder="e.g. PHP & Web Development Challenge"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
-                  Description
+                <label className="block text-xs font-black uppercase text-slate-700 tracking-wider mb-1">
+                  Quest Lore / Description
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows="3"
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
-                  placeholder="Brief overview of what this quiz covers..."
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-900 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-sky-200 shadow-[0_4px_0_#0f172a]"
+                  placeholder="Brief overview of what this quest tests..."
                 ></textarea>
               </div>
 
@@ -172,16 +177,16 @@ const ManageQuizzes = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+                  className="px-5 py-2.5 rounded-2xl border-2 border-slate-900 text-slate-700 font-black text-sm hover:bg-slate-100 transition shadow-[0_4px_0_#0f172a]"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow transition disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-sm border-2 border-slate-900 shadow-[0_4px_0_#0f172a] active:translate-y-1 transition disabled:opacity-50"
                 >
-                  {submitting ? 'Saving...' : editingQuiz ? 'Update Quiz' : 'Save & Add Questions'}
+                  {submitting ? 'SAVING...' : editingQuiz ? 'UPDATE QUEST' : 'SAVE & ADD QUESTIONS 🚀'}
                 </button>
               </div>
             </form>
@@ -193,61 +198,61 @@ const ManageQuizzes = () => {
       {loading ? (
         <LoadingSpinner />
       ) : quizzes.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-sm">
-          <p className="text-slate-500 lead mb-4">No quizzes have been created yet.</p>
+        <div className="bg-white rounded-3xl border-4 border-slate-900 p-12 text-center shadow-[0_6px_0_#0f172a]">
+          <p className="text-slate-600 font-black text-xl mb-4">No Quests Have Been Forged Yet!</p>
           <button
             onClick={openCreateModal}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition"
+            className="bg-sky-500 hover:bg-sky-400 text-white border-2 border-slate-900 px-6 py-3 rounded-2xl font-black text-base shadow-[0_4px_0_#0f172a] transition-all"
           >
-            Create Your First Quiz
+            Create Your First Quest
           </button>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border-4 border-slate-900 shadow-[0_8px_0_#0f172a] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
+            <table className="min-w-full divide-y-4 divide-slate-900">
               <thead className="bg-slate-900 text-white">
                 <tr>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider">#</th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider">Title</th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider">Description</th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider">Questions</th>
-                  <th scope="col" className="px-6 py-3.5 text-right text-xs font-bold uppercase tracking-wider">Actions</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-amber-300">#</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-sky-300">Title</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider">Description</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider">Questions</th>
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-black uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y-2 divide-slate-200 bg-white font-bold text-sm">
                 {quizzes.map((quiz) => (
-                  <tr key={quiz.id} className="hover:bg-slate-50 transition">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-500">#{quiz.id}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900">{quiz.title}</td>
-                    <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">
+                  <tr key={quiz.id} className="hover:bg-sky-50 transition">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-500">#{quiz.id}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-base font-black text-slate-900">{quiz.title}</td>
+                    <td className="px-6 py-4 text-xs font-bold text-slate-500 max-w-xs truncate">
                       {quiz.description || 'No description provided.'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        quiz.question_count > 0 ? 'bg-indigo-100 text-indigo-800' : 'bg-amber-100 text-amber-800'
+                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[0_2px_0_#0f172a] ${
+                        quiz.question_count > 0 ? 'bg-sky-100 text-sky-900' : 'bg-amber-100 text-amber-900'
                       }`}>
                         {quiz.question_count} Question{quiz.question_count === 1 ? '' : 's'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs font-black space-x-2">
                       <Link
                         to={`/admin/quizzes/${quiz.id}/questions`}
-                        className="inline-flex items-center px-3 py-1.5 border border-indigo-600 text-indigo-600 rounded-lg text-xs font-semibold hover:bg-indigo-50 transition"
+                        className="inline-flex items-center px-3 py-1.5 border-2 border-slate-900 bg-sky-400 hover:bg-sky-300 text-slate-900 rounded-xl text-xs font-black shadow-[0_2px_0_#0f172a] transition"
                       >
-                        Questions
+                        ❓ Questions
                       </Link>
                       <button
                         onClick={() => openEditModal(quiz)}
-                        className="inline-flex items-center px-3 py-1.5 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition"
+                        className="inline-flex items-center px-3 py-1.5 border-2 border-slate-900 bg-amber-300 hover:bg-amber-200 text-slate-900 rounded-xl text-xs font-black shadow-[0_2px_0_#0f172a] transition"
                       >
-                        Edit
+                        ✏️ Edit
                       </button>
                       <button
                         onClick={() => handleDelete(quiz)}
-                        className="inline-flex items-center px-3 py-1.5 border border-red-200 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-50 transition"
+                        className="inline-flex items-center px-3 py-1.5 border-2 border-slate-900 bg-coral-400 hover:bg-coral-300 text-white rounded-xl text-xs font-black shadow-[0_2px_0_#0f172a] transition"
                       >
-                        Delete
+                        🗑️ Delete
                       </button>
                     </td>
                   </tr>

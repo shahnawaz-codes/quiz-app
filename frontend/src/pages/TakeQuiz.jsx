@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { apiClient } from '../api/client';
 import LoadingSpinner from '../components/LoadingSpinner';
+import { Swords, Flame, ArrowLeft, CheckCircle2, ShieldAlert, Sparkles, Send } from 'lucide-react';
 
 const TakeQuiz = () => {
   const { quizId } = useParams();
@@ -65,17 +66,17 @@ const TakeQuiz = () => {
 
   if (error || !quiz) {
     return (
-      <div className="max-w-xl mx-auto my-8 bg-white border border-red-200 rounded-xl p-8 text-center shadow-sm space-y-4">
-        <div className="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">
-          ⚠️
+      <div className="max-w-xl mx-auto my-12 bg-white border-4 border-slate-900 rounded-3xl p-8 text-center shadow-[0_8px_0_#0f172a] space-y-4">
+        <div className="w-16 h-16 bg-rose-100 text-rose-600 rounded-3xl border-3 border-slate-900 flex items-center justify-center mx-auto text-3xl shadow-sm">
+          <ShieldAlert className="w-8 h-8" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Quiz Unavailable</h2>
-        <p className="text-sm text-slate-600">{error || 'Quiz not found.'}</p>
+        <h2 className="text-2xl font-black text-slate-900 font-cartoon">Quest Unavailable</h2>
+        <p className="text-xs font-bold text-slate-600">{error || 'This battle stage could not be located.'}</p>
         <Link
           to="/dashboard"
-          className="inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-semibold hover:bg-indigo-700 transition"
+          className="btn-cartoon-sky inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-xs uppercase tracking-wider"
         >
-          &larr; Back to Dashboard
+          <ArrowLeft className="w-4 h-4" /> Return to Dashboard
         </Link>
       </div>
     );
@@ -84,95 +85,143 @@ const TakeQuiz = () => {
   const totalQuestions = quiz.questions.length;
   const answeredCount = Object.keys(answers).length;
   const progressPercent = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
+  const comboMultiplier = answeredCount > 2 ? 'x2.0' : answeredCount > 0 ? 'x1.5' : 'x1.0';
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 pb-20 relative">
-      {/* Header Info */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
-        <div className="flex flex-wrap justify-between items-center gap-2">
-          <Link to="/dashboard" className="text-xs font-semibold text-indigo-600 hover:underline">
-            &larr; Cancel and Return to Dashboard
+    <div className="max-w-3xl mx-auto space-y-8 pb-24 relative">
+      {/* Cartoon Quest Header */}
+      <div className="bg-sky-600 rounded-3xl border-4 border-slate-900 p-6 sm:p-8 shadow-[0_8px_0_#0f172a] text-white space-y-5">
+        <div className="flex flex-wrap justify-between items-center gap-3">
+          <Link to="/dashboard" className="text-xs font-black bg-white text-slate-900 px-3.5 py-1.5 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] hover:bg-sky-100 flex items-center gap-1.5 transition font-cartoon">
+            <ArrowLeft className="w-4 h-4" /> Retreat
           </Link>
-          <span className="text-xs bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full border border-indigo-100">
-            {answeredCount} of {totalQuestions} Answered
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-black bg-amber-400 text-slate-900 px-3.5 py-1 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] flex items-center gap-1 font-cartoon">
+              <Flame className="w-3.5 h-3.5 text-slate-900" /> Combo {comboMultiplier}
+            </span>
+            <span className="text-xs font-black bg-emerald-400 text-slate-900 px-3 py-1 rounded-full border-2 border-slate-900 shadow-[0_2px_0_#0f172a] font-cartoon">
+              {answeredCount} / {totalQuestions} Answered
+            </span>
+          </div>
         </div>
 
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900">{quiz.title}</h1>
-          {quiz.description && <p className="text-sm text-slate-500 mt-1">{quiz.description}</p>}
+          <div className="flex items-center gap-2 mb-1">
+            <span className="px-3 py-0.5 rounded-full bg-amber-300 text-slate-900 border-2 border-slate-900 font-black text-[10px] uppercase tracking-wider font-cartoon">
+              Stage #{quiz.id}
+            </span>
+            <span className="text-xs font-black text-amber-200 flex items-center gap-1 font-cartoon">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" /> Earn EXP Points
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-white font-cartoon leading-tight drop-shadow-[0_2px_0_#0f172a]">
+            {quiz.title}
+          </h1>
+          {quiz.description && (
+            <p className="text-xs sm:text-sm text-sky-100 mt-1 font-bold">{quiz.description}</p>
+          )}
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-          <div
-            className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progressPercent}%` }}
-          ></div>
+        {/* Quest Progress Tracker */}
+        <div className="space-y-1.5 pt-2">
+          <div className="flex justify-between text-xs font-black text-white font-cartoon">
+            <span>STAGE PROGRESS</span>
+            <span>{progressPercent}% COMPLETE</span>
+          </div>
+          <div className="w-full bg-sky-900 rounded-full h-4 p-0.5 overflow-hidden border-2 border-slate-900">
+            <div
+              className="bg-amber-400 h-full rounded-full transition-all duration-300 border border-slate-900 shadow-sm"
+              style={{ width: `${progressPercent}%` }}
+            ></div>
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 text-sm">
-          {error}
+        <div className="bg-rose-100 text-rose-900 border-3 border-slate-900 rounded-2xl p-4 text-sm font-black shadow-[0_4px_0_#0f172a] flex items-center gap-2">
+          <ShieldAlert className="w-4 h-4 text-rose-600" /> {error}
         </div>
       )}
 
-      {/* Questions Form */}
+      {/* Questions List */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        {quiz.questions.map((q, idx) => (
-          <div key={q.id} className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
-            <div className="flex gap-3 items-start">
-              <span className="bg-slate-900 text-white font-bold text-xs px-2.5 py-1 rounded-md mt-0.5">
-                Q{idx + 1}
-              </span>
-              <h3 className="text-lg font-bold text-slate-900 leading-snug">
-                {q.question_text}
-              </h3>
-            </div>
+        {quiz.questions.map((q, idx) => {
+          const isAnswered = !!answers[q.id];
 
-            <div className="grid grid-cols-1 gap-3 pt-2">
-              {['a', 'b', 'c', 'd'].map((optKey) => {
-                const optText = q[`option_${optKey}`];
-                const isSelected = answers[q.id] === optKey;
+          return (
+            <div
+              key={q.id}
+              className={`bg-white rounded-3xl border-3 border-slate-900 transition-all duration-200 p-6 sm:p-8 shadow-[0_6px_0_#0f172a] space-y-6 ${
+                isAnswered ? 'bg-sky-50/60 ring-2 ring-sky-400' : ''
+              }`}
+            >
+              <div className="flex gap-3.5 items-start">
+                <span className="bg-amber-400 text-slate-900 border-2 border-slate-900 font-black text-xs px-3 py-1.5 rounded-2xl shadow-[0_2px_0_#0f172a] mt-0.5 font-cartoon">
+                  STAGE {idx + 1}
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-slate-900 leading-snug font-cartoon">
+                  {q.question_text}
+                </h3>
+              </div>
 
-                return (
-                  <label
-                    key={optKey}
-                    onClick={() => handleOptionSelect(q.id, optKey)}
-                    className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition ${
-                      isSelected
-                        ? 'border-indigo-600 bg-indigo-50/60 ring-2 ring-indigo-500/20 text-indigo-950 font-medium'
-                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-700'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name={`question_${q.id}`}
-                      value={optKey}
-                      checked={isSelected}
-                      onChange={() => {}}
-                      className="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300"
-                    />
-                    <span className="font-bold uppercase text-xs w-5 text-slate-400">
-                      ({optKey})
-                    </span>
-                    <span className="text-sm">{optText}</span>
-                  </label>
-                );
-              })}
+              {/* Cartoon Option Buttons (A), (B), (C), (D) */}
+              <div className="grid grid-cols-1 gap-3 pt-2">
+                {['a', 'b', 'c', 'd'].map((optKey) => {
+                  const optText = q[`option_${optKey}`];
+                  const isSelected = answers[q.id] === optKey;
+
+                  return (
+                    <label
+                      key={optKey}
+                      onClick={() => handleOptionSelect(q.id, optKey)}
+                      className={`flex items-center justify-between p-4 rounded-2xl border-3 border-slate-900 cursor-pointer transition-all duration-150 transform hover:scale-[1.01] ${
+                        isSelected
+                          ? 'bg-amber-300 text-slate-900 shadow-[0_4px_0_#0f172a] font-black scale-[1.01]'
+                          : 'bg-white hover:bg-sky-50 text-slate-900 shadow-[0_3px_0_#0f172a] font-bold'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <span
+                          className={`w-8 h-8 rounded-xl border-2 border-slate-900 font-black text-xs flex items-center justify-center font-cartoon transition-all ${
+                            isSelected
+                              ? 'bg-slate-900 text-white shadow-sm'
+                              : 'bg-sky-100 text-slate-900'
+                          }`}
+                        >
+                          {optKey.toUpperCase()}
+                        </span>
+                        <span className="text-sm">{optText}</span>
+                      </div>
+
+                      <div className="w-6 h-6 rounded-full border-2 border-slate-900 flex items-center justify-center bg-white">
+                        {isSelected ? (
+                          <div className="w-3.5 h-3.5 bg-slate-900 rounded-full"></div>
+                        ) : (
+                          <div className="w-3 h-3 rounded-full border-slate-300"></div>
+                        )}
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Sticky Submit Bar at Bottom */}
-        <div className="sticky bottom-0 bg-slate-50/95 backdrop-blur-sm py-4 border-t border-slate-200 shadow-lg z-20 flex justify-end items-center px-4 rounded-xl">
+        <div className="sticky bottom-4 z-40 bg-white p-4 sm:p-5 rounded-3xl border-4 border-slate-900 shadow-[0_8px_0_#0f172a] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="text-xs font-black text-slate-900 text-center sm:text-left font-cartoon">
+            <span>{totalQuestions - answeredCount} Question(s) Remaining</span>
+            <p className="text-[11px] text-slate-500 font-bold">Submit to calculate score and rank XP</p>
+          </div>
+
           <button
             type="submit"
             disabled={submitting}
-            className="w-full sm:w-auto px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md transition text-base disabled:opacity-50 flex items-center justify-center gap-2"
+            className="btn-cartoon-yellow w-full sm:w-auto px-8 py-3.5 text-slate-900 text-sm shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 uppercase tracking-wider"
           >
-            {submitting ? 'Calculating Score...' : 'Submit Quiz Attempt ✓'}
+            <Send className="w-4 h-4 text-slate-900" />
+            <span>{submitting ? 'Calculating Score...' : 'Submit Battle Attempt ✓'}</span>
           </button>
         </div>
       </form>
@@ -181,3 +230,5 @@ const TakeQuiz = () => {
 };
 
 export default TakeQuiz;
+
+

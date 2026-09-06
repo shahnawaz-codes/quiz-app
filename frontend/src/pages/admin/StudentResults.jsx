@@ -49,24 +49,26 @@ const StudentResults = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap justify-between items-center gap-4">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-white p-6 rounded-3xl border-4 border-slate-900 shadow-[0_6px_0_#0f172a]">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Student Quiz Results</h2>
-          <p className="text-sm text-slate-500">Monitor all quiz submissions across your platform</p>
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            🏆 PLAYER SCORE LOGS
+          </h2>
+          <p className="text-sm font-bold text-slate-500">Monitor all quiz submissions across your platform</p>
         </div>
 
         {/* Filter Dropdown */}
         <div className="flex items-center space-x-3">
-          <label htmlFor="quizFilter" className="text-sm font-semibold text-slate-700 whitespace-nowrap">
-            Filter by Quiz:
+          <label htmlFor="quizFilter" className="text-xs font-black uppercase text-slate-700 whitespace-nowrap">
+            Filter by Quest:
           </label>
           <select
             id="quizFilter"
             value={selectedQuizId}
             onChange={handleFilterChange}
-            className="px-4 py-2 bg-white border border-slate-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 shadow-sm"
+            className="px-4 py-2.5 bg-sky-50 border-2 border-slate-900 rounded-2xl text-sm font-bold focus:outline-none focus:ring-4 focus:ring-sky-200 shadow-[0_4px_0_#0f172a]"
           >
-            <option value="">All Quizzes</option>
+            <option value="">All Quests</option>
             {quizzes.map((q) => (
               <option key={q.id} value={q.id}>
                 {q.title}
@@ -78,23 +80,23 @@ const StudentResults = () => {
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-center">
-          <span className="text-xs font-bold uppercase text-slate-400">Total Attempts</span>
-          <p className="text-2xl font-extrabold text-slate-900 mt-1">{totalAttempts}</p>
+        <div className="bg-sky-100 rounded-3xl p-5 border-4 border-slate-900 shadow-[0_6px_0_#0f172a] text-center">
+          <span className="text-xs font-black uppercase text-slate-600 tracking-wider">Total Battle Attempts</span>
+          <p className="text-3xl font-black text-slate-900 mt-1">{totalAttempts} ⚔️</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-center">
-          <span className="text-xs font-bold uppercase text-slate-400">Passed Attempts</span>
-          <p className="text-2xl font-extrabold text-emerald-600 mt-1">{passedAttempts}</p>
+        <div className="bg-emerald-100 rounded-3xl p-5 border-4 border-slate-900 shadow-[0_6px_0_#0f172a] text-center">
+          <span className="text-xs font-black uppercase text-emerald-800 tracking-wider">Victories Cleared</span>
+          <p className="text-3xl font-black text-emerald-700 mt-1">{passedAttempts} 🌟</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-slate-200 shadow-sm text-center">
-          <span className="text-xs font-bold uppercase text-slate-400">Average Percentage</span>
-          <p className="text-2xl font-extrabold text-indigo-600 mt-1">{averagePercentage}%</p>
+        <div className="bg-amber-100 rounded-3xl p-5 border-4 border-slate-900 shadow-[0_6px_0_#0f172a] text-center">
+          <span className="text-xs font-black uppercase text-amber-800 tracking-wider">Guild Average</span>
+          <p className="text-3xl font-black text-amber-700 mt-1">{averagePercentage}% ⚡</p>
         </div>
       </div>
 
       {error && (
-        <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-4 text-sm">
-          {error}
+        <div className="bg-coral-100 text-coral-800 border-2 border-coral-500 rounded-2xl p-4 text-sm font-bold shadow-[0_4px_0_#ef4444]">
+          ⚠️ {error}
         </div>
       )}
 
@@ -102,57 +104,57 @@ const StudentResults = () => {
       {loading ? (
         <LoadingSpinner />
       ) : results.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-sm">
-          <div className="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 text-xl font-bold">
-            📋
+        <div className="bg-white rounded-3xl border-4 border-slate-900 p-12 text-center shadow-[0_6px_0_#0f172a]">
+          <div className="w-16 h-16 bg-amber-100 text-amber-600 border-2 border-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl font-black shadow-[0_4px_0_#0f172a]">
+            📜
           </div>
-          <p className="text-slate-600 font-semibold mb-1">No quiz results found.</p>
-          <p className="text-slate-400 text-sm">
-            {selectedQuizId ? 'No students have taken this specific quiz yet.' : 'No students have submitted any quizzes yet.'}
+          <p className="text-slate-900 font-black text-xl mb-1">No Quest Logs Found!</p>
+          <p className="text-slate-500 font-bold text-sm">
+            {selectedQuizId ? 'No players have tackled this quest yet.' : 'No players have submitted any battle results yet.'}
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl border-4 border-slate-900 shadow-[0_8px_0_#0f172a] overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-slate-200">
+            <table className="min-w-full divide-y-4 divide-slate-900">
               <thead className="bg-slate-900 text-white">
                 <tr>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider">Student</th>
-                  <th scope="col" className="px-6 py-3.5 text-left text-xs font-bold uppercase tracking-wider">Quiz Title</th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider">Score</th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider">Percentage</th>
-                  <th scope="col" className="px-6 py-3.5 text-center text-xs font-bold uppercase tracking-wider">Status</th>
-                  <th scope="col" className="px-6 py-3.5 text-right text-xs font-bold uppercase tracking-wider">Date &amp; Time</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-amber-300">Player</th>
+                  <th scope="col" className="px-6 py-4 text-left text-xs font-black uppercase tracking-wider text-sky-300">Quest Title</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider">Score</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider">Accuracy</th>
+                  <th scope="col" className="px-6 py-4 text-center text-xs font-black uppercase tracking-wider">Status</th>
+                  <th scope="col" className="px-6 py-4 text-right text-xs font-black uppercase tracking-wider text-slate-300">Timestamp</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 bg-white">
+              <tbody className="divide-y-2 divide-slate-200 bg-white font-bold text-sm">
                 {results.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50 transition">
+                  <tr key={r.id} className="hover:bg-sky-50 transition">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-bold text-slate-900">{r.student_name}</div>
-                      <div className="text-xs text-slate-400">{r.student_email}</div>
+                      <div className="text-base font-black text-slate-900">{r.student_name}</div>
+                      <div className="text-xs font-bold text-slate-400">{r.student_email}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-slate-800">
                       {r.quiz_title}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-slate-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-center text-base font-black text-slate-900">
                       {r.score} / {r.total_questions}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                        r.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[0_2px_0_#0f172a] ${
+                        r.passed ? 'bg-emerald-400 text-slate-900' : 'bg-coral-400 text-white'
                       }`}>
                         {r.percentage}%
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                        r.passed ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'
+                      <span className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-black border-2 border-slate-900 shadow-[0_2px_0_#0f172a] ${
+                        r.passed ? 'bg-emerald-100 text-emerald-800' : 'bg-coral-100 text-coral-800'
                       }`}>
-                        {r.passed ? 'Passed' : 'Failed'}
+                        {r.passed ? 'CLEARED 🌟' : 'FAILED 💔'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs text-slate-500 font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-xs text-slate-500 font-bold">
                       {new Date(r.completed_at).toLocaleString()}
                     </td>
                   </tr>

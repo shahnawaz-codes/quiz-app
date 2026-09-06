@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { apiClient } from '../../api/client';
 import LoadingSpinner from '../../components/LoadingSpinner';
+import { ShieldCheck, BookOpen, Users, Award, ChevronRight, Settings, BarChart2 } from 'lucide-react';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -46,18 +47,18 @@ const AdminDashboard = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-12">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold mb-3 border border-indigo-500/30">
-            🛡️ Admin Command Center
+      <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border-4 border-slate-900 shadow-[0_10px_0_#0f172a] relative overflow-hidden">
+        <div className="relative z-10 max-w-2xl space-y-3">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-400 text-slate-900 border-2 border-slate-900 text-xs font-black uppercase tracking-wider font-cartoon shadow-[0_2px_0_#0f172a]">
+            <ShieldCheck className="w-4 h-4 text-slate-900" /> Guild Master Console
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight mb-2">
-            Welcome back, {user?.name || 'Administrator'}!
+          <h1 className="text-2xl sm:text-4xl font-black font-cartoon tracking-tight text-white drop-shadow-[0_2px_0_#0f172a]">
+            Welcome back, Master <span className="text-amber-300">{user?.name || 'Administrator'}</span>!
           </h1>
-          <p className="text-slate-300 text-sm leading-relaxed">
-            Manage quizzes, oversee student submissions, track performance statistics, and configure assessment modules.
+          <p className="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed">
+            Manage active quiz stages, oversee student battle submissions, monitor performance statistics, and configure assessment modules.
           </p>
         </div>
       </div>
@@ -67,33 +68,33 @@ const AdminDashboard = () => {
         <LoadingSpinner />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-3xl p-6 border-3 border-slate-900 shadow-[0_6px_0_#0f172a] flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Total Quizzes</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{stats.quizCount}</h3>
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 font-cartoon">Total Active Quests</p>
+              <h3 className="text-3xl font-black text-slate-900 font-cartoon mt-1">{stats.quizCount}</h3>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
-              📚
+            <div className="w-14 h-14 rounded-2xl bg-sky-100 border-2 border-slate-900 text-sky-600 flex items-center justify-center text-2xl font-black shadow-sm">
+              <BookOpen className="w-7 h-7 text-sky-600" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-3xl p-6 border-3 border-slate-900 shadow-[0_6px_0_#0f172a] flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Student Attempts</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{stats.totalAttempts}</h3>
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 font-cartoon">Adventurer Attempts</p>
+              <h3 className="text-3xl font-black text-slate-900 font-cartoon mt-1">{stats.totalAttempts}</h3>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-              📝
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 border-2 border-slate-900 text-emerald-600 flex items-center justify-center text-2xl font-black shadow-sm">
+              <Users className="w-7 h-7 text-emerald-600" />
             </div>
           </div>
 
-          <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white rounded-3xl p-6 border-3 border-slate-900 shadow-[0_6px_0_#0f172a] flex items-center justify-between">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Overall Pass Rate</p>
-              <h3 className="text-3xl font-extrabold text-slate-900 mt-1">{stats.passRate}%</h3>
+              <p className="text-[11px] font-black uppercase tracking-widest text-slate-500 font-cartoon">Guild Clear Rate</p>
+              <h3 className="text-3xl font-black text-slate-900 font-cartoon mt-1">{stats.passRate}%</h3>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl font-bold">
-              🎯
+            <div className="w-14 h-14 rounded-2xl bg-amber-100 border-2 border-slate-900 text-amber-600 flex items-center justify-center text-2xl font-black shadow-sm">
+              <Award className="w-7 h-7 text-amber-600" />
             </div>
           </div>
         </div>
@@ -101,42 +102,44 @@ const AdminDashboard = () => {
 
       {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-3 border-slate-900 shadow-[0_6px_0_#0f172a] hover:shadow-[0_10px_0_#0f172a] transition space-y-4 flex flex-col justify-between">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg mb-3">
-              ⚙️
+            <div className="w-12 h-12 rounded-2xl bg-sky-100 border-2 border-slate-900 text-slate-900 flex items-center justify-center font-black text-xl mb-3 shadow-sm">
+              <Settings className="w-6 h-6 text-sky-600" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Quiz &amp; Question Management</h3>
-            <p className="text-slate-500 text-sm mt-1">
-              Create new quizzes, update titles and descriptions, add multiple-choice questions, set correct choices, or remove deprecated modules.
+            <h3 className="text-xl font-black text-slate-900 font-cartoon">Quest &amp; Question Management</h3>
+            <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1 leading-relaxed">
+              Create new battle stages, update titles and descriptions, add multiple-choice questions, set correct choices, or remove deprecated modules.
             </p>
           </div>
           <div className="pt-4 flex flex-wrap gap-3">
             <Link
               to="/admin/quizzes"
-              className="inline-flex items-center px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-sm transition shadow"
+              className="btn-cartoon-sky text-white px-5 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2 uppercase tracking-wider"
             >
-              Manage Quizzes &rarr;
+              <span>Manage Quests</span>
+              <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition space-y-4 flex flex-col justify-between">
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border-3 border-slate-900 shadow-[0_6px_0_#0f172a] hover:shadow-[0_10px_0_#0f172a] transition space-y-4 flex flex-col justify-between">
           <div>
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-lg mb-3">
-              📊
+            <div className="w-12 h-12 rounded-2xl bg-emerald-100 border-2 border-slate-900 text-slate-900 flex items-center justify-center font-black text-xl mb-3 shadow-sm">
+              <BarChart2 className="w-6 h-6 text-emerald-600" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900">Student Results &amp; Analytics</h3>
-            <p className="text-slate-500 text-sm mt-1">
+            <h3 className="text-xl font-black text-slate-900 font-cartoon">Adventurer Results &amp; Analytics</h3>
+            <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1 leading-relaxed">
               View student submission records across all quizzes, filter results by specific quiz modules, track scores, percentages, and pass/fail statuses.
             </p>
           </div>
           <div className="pt-4 flex flex-wrap gap-3">
             <Link
               to="/admin/results"
-              className="inline-flex items-center px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-semibold text-sm transition shadow"
+              className="btn-cartoon-green text-white px-5 py-3 rounded-2xl text-xs sm:text-sm flex items-center gap-2 uppercase tracking-wider"
             >
-              View All Results &rarr;
+              <span>View Guild Records</span>
+              <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
@@ -146,3 +149,5 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+

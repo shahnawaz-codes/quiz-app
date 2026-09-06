@@ -140,56 +140,59 @@ const ManageQuestions = () => {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/admin/quizzes" className="text-sm font-semibold text-indigo-600 hover:underline">
-          &larr; Back to All Quizzes
+        <Link to="/admin/quizzes" className="text-sm font-black text-sky-600 hover:underline flex items-center gap-1">
+          &larr; Return to All Quests
         </Link>
       </div>
 
-      <div className="flex flex-wrap justify-between items-center gap-4">
+      <div className="flex flex-wrap justify-between items-center gap-4 bg-white p-6 rounded-3xl border-4 border-slate-900 shadow-[0_6px_0_#0f172a]">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Questions for: {quiz ? quiz.title : `Quiz #${quizId}`}
+          <h2 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+            ❓ {quiz ? quiz.title : `Quest #${quizId}`}
           </h2>
-          <p className="text-sm text-slate-500">{quiz?.description || 'No description provided.'}</p>
+          <p className="text-sm font-bold text-slate-500">{quiz?.description || 'No lore description provided.'}</p>
         </div>
         <button
           onClick={openCreateModal}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-semibold shadow transition text-sm flex items-center gap-2"
+          className="bg-emerald-500 hover:bg-emerald-400 active:translate-y-1 text-slate-900 px-5 py-3 rounded-2xl font-black shadow-[0_4px_0_#0f172a] border-2 border-slate-900 transition-all text-sm flex items-center gap-2"
         >
-          + Add Question
+          ➕ ADD QUESTION CARD
         </button>
       </div>
 
       {success && (
-        <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg p-3 text-sm">
-          {success}
+        <div className="bg-emerald-100 text-emerald-900 border-2 border-emerald-500 rounded-2xl p-4 text-sm font-bold shadow-[0_4px_0_#10b981]">
+          ✨ {success}
         </div>
       )}
 
       {error && (
-        <div className="bg-red-50 text-red-700 border border-red-200 rounded-lg p-3 text-sm">
-          {error}
+        <div className="bg-coral-100 text-coral-800 border-2 border-coral-500 rounded-2xl p-4 text-sm font-bold shadow-[0_4px_0_#ef4444]">
+          ⚠️ {error}
         </div>
       )}
 
       {/* Modal / Question Form Drawer */}
       {showModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 border border-slate-100 space-y-4 my-8">
-            <h3 className="text-xl font-bold text-slate-900">
-              {editingQuestion ? 'Edit Question' : 'Add New Question'}
-            </h3>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-3xl shadow-[0_12px_0_#0f172a] max-w-2xl w-full p-6 border-4 border-slate-900 space-y-4 my-8">
+            <div className="flex justify-between items-center border-b-2 border-slate-200 pb-3">
+              <h3 className="text-2xl font-black text-slate-900">
+                {editingQuestion ? '✏️ EDIT QUESTION' : '➕ ADD NEW QUESTION'}
+              </h3>
+              <button onClick={closeModal} className="text-slate-400 hover:text-slate-900 text-xl font-bold">✖</button>
+            </div>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
-                  Question Text <span className="text-red-500">*</span>
+                <label className="block text-xs font-black uppercase text-slate-700 tracking-wider mb-1">
+                  Question Prompt <span className="text-coral-500">*</span>
                 </label>
                 <textarea
                   value={questionText}
                   onChange={(e) => setQuestionText(e.target.value)}
                   rows="3"
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-900 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-sky-200 shadow-[0_4px_0_#0f172a]"
                   placeholder="Enter the question prompt..."
                   required
                 ></textarea>
@@ -197,63 +200,63 @@ const ManageQuestions = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                    Option A <span className="text-red-500">*</span>
+                  <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    Option A <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={optionA}
                     onChange={(e) => setOptionA(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-900 text-sm font-bold shadow-[0_3px_0_#0f172a]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                    Option B <span className="text-red-500">*</span>
+                  <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    Option B <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={optionB}
                     onChange={(e) => setOptionB(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-900 text-sm font-bold shadow-[0_3px_0_#0f172a]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                    Option C <span className="text-red-500">*</span>
+                  <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    Option C <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={optionC}
                     onChange={(e) => setOptionC(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-900 text-sm font-bold shadow-[0_3px_0_#0f172a]"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold uppercase text-slate-500 mb-1">
-                    Option D <span className="text-red-500">*</span>
+                  <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                    Option D <span className="text-coral-500">*</span>
                   </label>
                   <input
                     type="text"
                     value={optionD}
                     onChange={(e) => setOptionD(e.target.value)}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                    className="w-full px-4 py-2.5 rounded-2xl border-2 border-slate-900 text-sm font-bold shadow-[0_3px_0_#0f172a]"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1">
-                  Correct Answer <span className="text-red-500">*</span>
+                <label className="block text-xs font-black uppercase text-slate-700 mb-1">
+                  Winning Answer key <span className="text-coral-500">*</span>
                 </label>
                 <select
                   value={correctAnswer}
                   onChange={(e) => setCorrectAnswer(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 text-sm"
+                  className="w-full px-4 py-3 rounded-2xl border-2 border-slate-900 text-sm font-bold bg-amber-50 shadow-[0_4px_0_#0f172a]"
                   required
                 >
                   <option value="a">Option A</option>
@@ -267,16 +270,16 @@ const ManageQuestions = () => {
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-medium hover:bg-slate-50 transition"
+                  className="px-5 py-2.5 rounded-2xl border-2 border-slate-900 text-slate-700 font-black text-sm hover:bg-slate-100 transition shadow-[0_4px_0_#0f172a]"
                 >
-                  Cancel
+                  CANCEL
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow transition disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-black text-sm border-2 border-slate-900 shadow-[0_4px_0_#0f172a] active:translate-y-1 transition disabled:opacity-50"
                 >
-                  {submitting ? 'Saving...' : 'Save Question'}
+                  {submitting ? 'SAVING...' : 'SAVE QUESTION CARD 💾'}
                 </button>
               </div>
             </form>
@@ -288,51 +291,51 @@ const ManageQuestions = () => {
       {loading ? (
         <LoadingSpinner />
       ) : questions.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 p-12 text-center shadow-sm">
-          <p className="text-slate-500 lead mb-4">This quiz currently has 0 questions.</p>
+        <div className="bg-white rounded-3xl border-4 border-slate-900 p-12 text-center shadow-[0_6px_0_#0f172a]">
+          <p className="text-slate-600 font-black text-xl mb-4">This Quest Has 0 Question Cards!</p>
           <button
             onClick={openCreateModal}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition"
+            className="bg-emerald-500 hover:bg-emerald-400 text-slate-900 border-2 border-slate-900 px-6 py-3 rounded-2xl font-black text-base shadow-[0_4px_0_#0f172a] transition-all"
           >
-            Add First Question
+            Add First Question Card
           </button>
         </div>
       ) : (
         <div className="space-y-4">
           {questions.map((q, index) => (
-            <div key={q.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4">
+            <div key={q.id} className="bg-white p-6 rounded-3xl border-4 border-slate-900 shadow-[0_6px_0_#0f172a] space-y-4">
               <div className="flex justify-between items-start gap-4">
-                <h4 className="text-lg font-bold text-slate-900">
+                <h4 className="text-xl font-black text-slate-900">
                   Q{index + 1}. {q.question_text}
                 </h4>
                 <div className="flex space-x-2">
                   <button
                     onClick={() => openEditModal(q)}
-                    className="px-3 py-1 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 transition"
+                    className="px-3 py-1.5 border-2 border-slate-900 bg-amber-300 hover:bg-amber-200 text-slate-900 rounded-xl text-xs font-black shadow-[0_2px_0_#0f172a] transition"
                   >
-                    Edit
+                    ✏️ Edit
                   </button>
                   <button
                     onClick={() => handleDelete(q)}
-                    className="px-3 py-1 border border-red-200 text-red-600 rounded-lg text-xs font-semibold hover:bg-red-50 transition"
+                    className="px-3 py-1.5 border-2 border-slate-900 bg-coral-400 hover:bg-coral-300 text-white rounded-xl text-xs font-black shadow-[0_2px_0_#0f172a] transition"
                   >
-                    Delete
+                    🗑️ Delete
                   </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className={`p-3 rounded-lg border text-sm ${q.correct_answer === 'a' ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                  <strong>A:</strong> {q.option_a} {q.correct_answer === 'a' && ' ✓ (Correct)'}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 font-bold text-sm">
+                <div className={`p-3.5 rounded-2xl border-2 border-slate-900 text-sm shadow-[0_3px_0_#0f172a] ${q.correct_answer === 'a' ? 'bg-emerald-300 text-slate-900 font-black' : 'bg-slate-50 text-slate-700'}`}>
+                  <strong>A:</strong> {q.option_a} {q.correct_answer === 'a' && ' (★ CORRECT)'}
                 </div>
-                <div className={`p-3 rounded-lg border text-sm ${q.correct_answer === 'b' ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                  <strong>B:</strong> {q.option_b} {q.correct_answer === 'b' && ' ✓ (Correct)'}
+                <div className={`p-3.5 rounded-2xl border-2 border-slate-900 text-sm shadow-[0_3px_0_#0f172a] ${q.correct_answer === 'b' ? 'bg-emerald-300 text-slate-900 font-black' : 'bg-slate-50 text-slate-700'}`}>
+                  <strong>B:</strong> {q.option_b} {q.correct_answer === 'b' && ' (★ CORRECT)'}
                 </div>
-                <div className={`p-3 rounded-lg border text-sm ${q.correct_answer === 'c' ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                  <strong>C:</strong> {q.option_c} {q.correct_answer === 'c' && ' ✓ (Correct)'}
+                <div className={`p-3.5 rounded-2xl border-2 border-slate-900 text-sm shadow-[0_3px_0_#0f172a] ${q.correct_answer === 'c' ? 'bg-emerald-300 text-slate-900 font-black' : 'bg-slate-50 text-slate-700'}`}>
+                  <strong>C:</strong> {q.option_c} {q.correct_answer === 'c' && ' (★ CORRECT)'}
                 </div>
-                <div className={`p-3 rounded-lg border text-sm ${q.correct_answer === 'd' ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold' : 'bg-slate-50 border-slate-200 text-slate-700'}`}>
-                  <strong>D:</strong> {q.option_d} {q.correct_answer === 'd' && ' ✓ (Correct)'}
+                <div className={`p-3.5 rounded-2xl border-2 border-slate-900 text-sm shadow-[0_3px_0_#0f172a] ${q.correct_answer === 'd' ? 'bg-emerald-300 text-slate-900 font-black' : 'bg-slate-50 text-slate-700'}`}>
+                  <strong>D:</strong> {q.option_d} {q.correct_answer === 'd' && ' (★ CORRECT)'}
                 </div>
               </div>
             </div>

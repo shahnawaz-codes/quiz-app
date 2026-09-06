@@ -1,3 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Outfit:wght@600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #F0F7FF;
+    color: #0F172A;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading, .font-cartoon {
+    font-family: 'Fredoka', 'Outfit', sans-serif;
+  }
+}
+
+/* 3D Cartoon Utility Classes */
+.cartoon-box {
+  background-color: #FFFFFF;
+  border: 3px solid #0F172A;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 0 #0F172A;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cartoon-box-lg {
+  background-color: #FFFFFF;
+  border: 4px solid #0F172A;
+  border-radius: 2rem;
+  box-shadow: 0 10px 0 #0F172A;
+}
+
+.cartoon-box-sky {
+  background-color: #E0F2FE;
+  border: 3px solid #0F172A;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 0 #0F172A;
+}
+
+.cartoon-box-yellow {
+  background-color: #FEF3C7;
+  border: 3px solid #0F172A;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 0 #0F172A;
+}
+
+.cartoon-box-green {
+  background-color: #D1FAE5;
+  border: 3px solid #0F172A;
+  border-radius: 1.5rem;
+  box-shadow: 0 6px 0 #0F172A;
+}
+
+/* 3D Pushed Cartoon Buttons */
+.btn-cartoon-sky {
+  background-color: #0284C7;
+  color: #FFFFFF;
+  border: 3px solid #0F172A;
+  border-radius: 1.25rem;
+  box-shadow: 0 5px 0 #0F172A;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-cartoon-sky:hover {
+  background-color: #0369A1;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0F172A;
+}
+
+.btn-cartoon-sky:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #0F172A;
+}
+
+.btn-cartoon-yellow {
+  background-color: #F59E0B;
+  color: #0F172A;
+  border: 3px solid #0F172A;
+  border-radius: 1.25rem;
+  box-shadow: 0 5px 0 #0F172A;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-cartoon-yellow:hover {
+  background-color: #D97706;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0F172A;
+}
+
+.btn-cartoon-yellow:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #0F172A;
+}
+
+.btn-cartoon-green {
+  background-color: #10B981;
+  color: #FFFFFF;
+  border: 3px solid #0F172A;
+  border-radius: 1.25rem;
+  box-shadow: 0 5px 0 #0F172A;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-cartoon-green:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0F172A;
+}
+
+.btn-cartoon-green:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #0F172A;
+}
+
+.btn-cartoon-red {
+  background-color: #FF5252;
+  color: #FFFFFF;
+  border: 3px solid #0F172A;
+  border-radius: 1.25rem;
+  box-shadow: 0 5px 0 #0F172A;
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-cartoon-red:hover {
+  background-color: #E11D48;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0F172A;
+}
+
+.btn-cartoon-red:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #0F172A;
+}
+
+.cartoon-badge {
+  border: 2px solid #0F172A;
+  box-shadow: 0 3px 0 #0F172A;
+  font-family: 'Fredoka', sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #E0F2FE;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #38BDF8;
+  border: 2px solid #0F172A;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #0284C7;
+}
+
+
