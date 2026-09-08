@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { quizService } from '../services/quizService';
 import { resultService } from '../services/resultService';
-import LoadingSpinner from '../components/LoadingSpinner';
+import SkeletonLoader from '../components/common/SkeletonLoader';
 import QuizCard from '../components/quiz/QuizCard';
 import LeaderboardWidget from '../components/quiz/LeaderboardWidget';
 import StatCard from '../components/common/StatCard';
@@ -143,7 +143,10 @@ const Dashboard = () => {
           )}
 
           {loading ? (
-            <LoadingSpinner />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <SkeletonLoader type="card" />
+              <SkeletonLoader type="card" />
+            </div>
           ) : quizzes.length === 0 ? (
             <div className="bg-white rounded-3xl border-4 border-slate-900 p-12 text-center shadow-[0_8px_0_#0f172a] space-y-4">
               <div className="w-16 h-16 bg-sky-100 text-sky-600 rounded-3xl border-3 border-slate-900 flex items-center justify-center mx-auto text-3xl">

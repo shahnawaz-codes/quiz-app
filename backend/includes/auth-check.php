@@ -44,22 +44,34 @@ function getBearerToken() {
 }
 
 /**
- * Verifies Authorization JWT header and checks user role.
+ * Retrieves JWT auth token from HttpOnly cookie first, with Authorization Bearer header fallback.
+ *
+ * @return string|null
+ */
+function getTokenFromRequest() {
+    if (!empty($_COOKIE['quiz_app_token'])) {
+        return $_COOKIE['quiz_app_token'];
+    }
+    return getBearerToken();
+}
+
+/**
+ * Verifies HttpOnly session cookie or Authorization JWT header and checks user role.
  *
  * @param string|null $requiredRole Optional role check ('student' or 'admin')
  * @return array Decoded user claims (user_id, role, name, email)
  */
 function requireAuth($requiredRole = null) {
-    $token = getBearerToken();
+    $token = getTokenFromRequest();
 
     if (!$token) {
-        sendJsonResponse(false, null, 'Unauthorized: Missing Authorization header.', 401);
+        sendJsonResponse(false, null, 'Unauthorized: Missing authentication cookie or header.', 401);
     }
 
     $payload = verifyJWT($token);
 
     if (!$payload) {
-        sendJsonResponse(false, null, 'Unauthorized: Invalid or expired token.', 401);
+        sendJsonResponse(false, null, 'Unauthorized: Invalid or expired session token.', 401);
     }
 
     if ($requiredRole !== null && ($payload['role'] ?? '') !== $requiredRole) {

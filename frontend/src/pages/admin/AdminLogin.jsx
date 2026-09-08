@@ -9,12 +9,8 @@ const AdminLogin = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-
-  if (user && user.role === 'admin') {
-    return <Navigate to="/admin/dashboard" replace />;
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -10,13 +10,9 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { user, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  if (user) {
-    return <Navigate to={user.role === 'admin' ? '/admin/dashboard' : '/dashboard'} replace />;
-  }
 
   const flashMessage = location.state?.message;
 
