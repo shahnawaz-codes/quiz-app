@@ -16,6 +16,34 @@ const AdminDashboard = () => {
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState('');
 
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    const [quizRes, resultsRes] = await Promise.all([
+      apiClient('/quizzes/list.php'),
+      apiClient('/results/admin-list.php')
+    ]);
+
+    let quizCount = 0;
+    let totalAttempts = 0;
+    let passRate = 0;
+
+    if (quizRes.success && quizRes.data) {
+      quizCount = quizRes.data.quizzes ? quizRes.data.quizzes.length : 0;
+    }
+
+    if (resultsRes.success && resultsRes.data) {
+      const results = resultsRes.data.results || [];
+      totalAttempts = results.length;
+      if (totalAttempts > 0) {
+        const passedCount = results.filter(r => r.passed).length;
+        passRate = Math.round((passedCount / totalAttempts) * 100);
+      }
+    }
+
+    setStats({ quizCount, totalAttempts, passRate });
+    setLoading(false);
+  };
+
   const handleSeed = async () => {
     setSeeding(true);
     setSeedMsg('');
@@ -23,41 +51,13 @@ const AdminDashboard = () => {
     setSeeding(false);
     if (res.success) {
       setSeedMsg(res.data?.message || 'Sample cartoon quizzes loaded!');
-      window.location.reload();
+      fetchDashboardData();
     } else {
       setSeedMsg('⚠️ Seeding error: ' + (res.error || 'Failed'));
     }
   };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      const [quizRes, resultsRes] = await Promise.all([
-        apiClient('/quizzes/list.php'),
-        apiClient('/results/admin-list.php')
-      ]);
-
-      let quizCount = 0;
-      let totalAttempts = 0;
-      let passRate = 0;
-
-      if (quizRes.success && quizRes.data) {
-        quizCount = quizRes.data.quizzes ? quizRes.data.quizzes.length : 0;
-      }
-
-      if (resultsRes.success && resultsRes.data) {
-        const results = resultsRes.data.results || [];
-        totalAttempts = results.length;
-        if (totalAttempts > 0) {
-          const passedCount = results.filter(r => r.passed).length;
-          passRate = Math.round((passedCount / totalAttempts) * 100);
-        }
-      }
-
-      setStats({ quizCount, totalAttempts, passRate });
-      setLoading(false);
-    };
-
     fetchDashboardData();
   }, []);
 
